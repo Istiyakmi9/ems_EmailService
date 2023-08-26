@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\ws\\ems\\core\\ems\\Bot.EmailService\\EmailRequest.csproj": {}
+    "D:\\ws\\ems\\core\\ems\\ems_EmailService\\EmailRequest.csproj": {}
   },
   "projects": {
-    "D:\\ws\\ems\\core\\ems\\Bot.EmailService\\EmailRequest.csproj": {
+    "D:\\ws\\ems\\core\\ems\\ems_EmailService\\EmailRequest.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\ws\\ems\\core\\ems\\Bot.EmailService\\EmailRequest.csproj",
+        "projectUniqueName": "D:\\ws\\ems\\core\\ems\\ems_EmailService\\EmailRequest.csproj",
         "projectName": "EmailRequest",
-        "projectPath": "D:\\ws\\ems\\core\\ems\\Bot.EmailService\\EmailRequest.csproj",
+        "projectPath": "D:\\ws\\ems\\core\\ems\\ems_EmailService\\EmailRequest.csproj",
         "packagesPath": "C:\\Users\\USER\\.nuget\\packages\\",
-        "outputPath": "D:\\ws\\ems\\core\\ems\\Bot.EmailService\\obj\\",
+        "outputPath": "D:\\ws\\ems\\core\\ems\\ems_EmailService\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\USER\\AppData\\Roaming\\NuGet\\NuGet.Config",
