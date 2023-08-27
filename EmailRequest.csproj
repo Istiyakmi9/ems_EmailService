@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\OnlineDataBuilderServer\BottomhalfCore\BottomhalfCore.csproj" />
-    <ProjectReference Include="..\..\OnlineDataBuilderServer\ModalLayer\ModalLayer.csproj" />
+    <ProjectReference Include="..\OnlineDataBuilderServer\BottomhalfCore\BottomhalfCore.csproj" />
+    <ProjectReference Include="..\OnlineDataBuilderServer\ModalLayer\ModalLayer.csproj" />
   </ItemGroup>
 
 </Project>
