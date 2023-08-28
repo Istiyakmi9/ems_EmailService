@@ -5,12 +5,12 @@ using System.Text;
 
 namespace EmailRequest.Service.TemplateService
 {
-    public class BillingTemplate
+    public class TimesheetApprovalTemplate
     {
         private readonly IDb _db;
         private EmailSettingDetail _emailSettingDetail { get; set; }
 
-        public BillingTemplate(IDb db)
+        public TimesheetApprovalTemplate(IDb db)
         {
             _db = db;
         }
@@ -67,12 +67,23 @@ namespace EmailRequest.Service.TemplateService
 
             emailTemplate.Footer = footer.ToString();
 
-            emailTemplate.SubjectLine = emailTemplate.EmailTitle;
+            emailTemplate.SubjectLine = emailTemplate.EmailTitle
+                .Replace("[[REQUEST-TYPE]]", emailRequestModal.RequestType)
+                .Replace("[[ACTION-TYPE]]", emailRequestModal.ActionType);
 
             emailTemplate.BodyContent = emailTemplate.BodyContent
                 .Replace("[[DEVELOPER-NAME]]", emailRequestModal.DeveloperName)
-                .Replace("[[MONTH]]", emailRequestModal.ManagerName)
-                .Replace("[[YEAR]]", emailRequestModal.TotalNumberOfDays.ToString());
+                .Replace("[[ACTION-TYPE]]", emailRequestModal.ActionType)
+                .Replace("[[DAYS-COUNT]]", emailRequestModal.TotalNumberOfDays.ToString())
+                .Replace("[[FROM-DATE]]", emailRequestModal.FromDate.ToString("dd MMM, yyy"))
+                .Replace("[[TO-DATE]]", emailRequestModal.ToDate.ToString("dd MMM, yyy"))
+                .Replace("[[MANAGER-NAME]]", emailRequestModal.ManagerName)
+                .Replace("[[USER-MESSAGE]]", emailRequestModal.Message)
+                .Replace("[[REQUEST-TYPE]]", emailRequestModal.RequestType);
+
+            emailTemplate.EmailTitle = emailTemplate.EmailTitle.Replace("[[REQUEST-TYPE]]", emailRequestModal.RequestType)
+                                    .Replace("[[DEVELOPER-NAME]]", emailRequestModal.DeveloperName)
+                                    .Replace("[[ACTION-TYPE]]", emailRequestModal.ActionType);
 
             emailSenderModal.Title = emailTemplate.EmailTitle;
             emailSenderModal.Subject = emailTemplate.SubjectLine;
