@@ -27,21 +27,21 @@ namespace EmailRequest.MIddleware
                     BootstrapServers = $"{_kafkaServiceConfig.ServiceName}:{_kafkaServiceConfig.Port}"
                 };
 
-                _logger.LogInformation($"Start listning kafka topic: {_kafkaServiceConfig.AttendanceEmailTopic}");
+                _logger.LogInformation($"[Kafka] Start listning kafka topic: {_kafkaServiceConfig.AttendanceEmailTopic}");
                 using (var consumer = new ConsumerBuilder<Null, string>(config).Build())
                 {
                     consumer.Subscribe(_kafkaServiceConfig.AttendanceEmailTopic);
                     while (true)
                     {
-                        _logger.LogInformation($"Waiting on topic: {_kafkaServiceConfig.AttendanceEmailTopic}");
+                        _logger.LogInformation($"[Kafka] Waiting on topic: {_kafkaServiceConfig.AttendanceEmailTopic}");
                         var message = consumer.Consume();
-                        _logger.LogInformation($"Message received: {message.Message.Value}");
+                        _logger.LogInformation($"[Kafka] Message received: {message.Message.Value}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"Error: {ex.Message}");
+                _logger.LogInformation($"[Kafka] Error: {ex.Message}");
                 throw;
             }
         }
