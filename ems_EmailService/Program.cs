@@ -1,5 +1,6 @@
 
 using EmailRequest;
+using EmailRequest.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var startup = new Startup(builder);
 startup.ConfigureServices(builder.Services);
+builder.Services.AddHostedService<KafkaService>();
 
 var app = builder.Build();
 
