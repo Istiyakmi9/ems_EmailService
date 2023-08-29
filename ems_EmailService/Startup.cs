@@ -6,19 +6,30 @@ using EmailRequest.MIddleware;
 using EmailRequest.Service;
 using EmailRequest.Service.TemplateService;
 using EmalRequest.Service;
+using ModalLayer;
 
 namespace EmailRequest
 {
     public class Startup
     {
         public IConfiguration Configuration { get; }
-        public Startup(IConfiguration configuration)
+        public Startup(WebApplicationBuilder builder)
         {
-            Configuration = configuration;
+            var env = builder.Environment;
+
+            var config = builder.Configuration
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile($"appsettings.json", false, false)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", false, false)
+                .AddEnvironmentVariables();
+
+            Configuration = config.Build();
         }
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.Configure<KafkaServiceConfig>(x => Configuration.GetSection(nameof(KafkaServiceConfig)).Bind(x));
 
             // add services
             services.AddScoped<IEMailManager, EMailManager>();

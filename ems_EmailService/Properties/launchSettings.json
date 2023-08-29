@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Bot.EmailService": {
+    "EmailService": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "weatherforecast",
