@@ -13,7 +13,9 @@ COPY ["ems_EmailService/EmailRequest.csproj", "ems_EmailService/"]
 COPY ["BottomhalfCore/BottomhalfCore.csproj", "BottomhalfCore/"]
 COPY ["ModalLayer/ModalLayer.csproj", "ModalLayer/"]
 RUN dotnet restore "ems_EmailService/EmailRequest.csproj"
+
 COPY . .
+
 WORKDIR "/src/ems_EmailService"
 RUN dotnet build "EmailRequest.csproj" -c Release -o /app/build
 
