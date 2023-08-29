@@ -6,12 +6,15 @@ using EmailRequest.MIddleware;
 using EmailRequest.Service;
 using EmailRequest.Service.TemplateService;
 using EmalRequest.Service;
+using Microsoft.Extensions.FileProviders;
+using ModalLayer.Modal;
 
 namespace EmailRequest
 {
     public class Startup
     {
         public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -23,13 +26,13 @@ namespace EmailRequest
             // add services
             services.AddScoped<IEMailManager, EMailManager>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<NewRegistrationTemplate>();
             services.AddSingleton<IDb, Db>(x =>
             {
                 var db = new Db();
                 db.SetupConnectionString("server=192.168.0.101;port=3306;database=onlinedatabuilder;User Id=istiyak;password=live@Bottomhalf_001;Connection Timeout=30;Connection Lifetime=0;Min Pool Size=0;Max Pool Size=100;Pooling=true;");
                 return db;
             });
-
             services.AddScoped<BillingTemplate>();
         }
         public void Configure(WebApplication app, IWebHostEnvironment env)
@@ -42,9 +45,14 @@ namespace EmailRequest
             }
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                   Path.Combine(Directory.GetCurrentDirectory())),
+                RequestPath = "/Files"
+            });
             app.UseRouting();
-            app.UseMiddleware<KafkaMiddleware>();
+            //app.UseMiddleware<KafkaMiddleware>();
             app.UseAuthorization();
             app.MapControllers();
             app.Run();

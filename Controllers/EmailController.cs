@@ -1,6 +1,6 @@
-﻿using EmailRequest.EMailService.Interface;
+﻿using EmailRequest.Service.TemplateService;
 using Microsoft.AspNetCore.Mvc;
-using ModalLayer.Modal;
+using ModalLayer.Modal.HtmlTemplateModel;
 
 namespace EmailRequest.Controllers
 {
@@ -8,16 +8,17 @@ namespace EmailRequest.Controllers
     [ApiController]
     public class EmailController : ControllerBase
     {
-        private readonly IEMailManager _eMailManager;
-        public EmailController(IEMailManager eMailManager)
+        private readonly NewRegistrationTemplate _newRegistrationTemplate;
+        public EmailController(NewRegistrationTemplate newRegistrationTemplate)
         {
-            _eMailManager = eMailManager;
+            _newRegistrationTemplate = newRegistrationTemplate;
         }
 
-        [HttpPost("email/send")]
-        public async Task SendEmail(EmailSenderModal emailSenderModal)
+        [HttpPost("Email/NewRegistration")]
+        public async Task NewRegistration(NewRegistrationTemplateModel newRegistrationTemplate)
         {
-            await _eMailManager.SendMailAsync(emailSenderModal);
+            _newRegistrationTemplate.SetupEmailTemplate(newRegistrationTemplate);
+            await Task.CompletedTask;
         }
     }
 }
