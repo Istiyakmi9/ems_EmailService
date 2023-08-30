@@ -1,8 +1,8 @@
-﻿using ModalLayer.Modal;
-using System.Net.Mail;
-using System.Net;
-using BottomhalfCore.DatabaseLayer.Common.Code;
+﻿using BottomhalfCore.DatabaseLayer.Common.Code;
 using EmailRequest.Service;
+using ModalLayer.Modal;
+using System.Net;
+using System.Net.Mail;
 using System.Net.Mime;
 using System.Text;
 

@@ -1,6 +1,5 @@
 ﻿using EmailRequest.EMailService.Interface;
 using EmailRequest.Service;
-using EmailRequest.Service.TemplateService;
 using MailKit.Net.Pop3;
 using ModalLayer.Modal;
 using System.Globalization;
@@ -9,13 +8,10 @@ namespace EmailRequest.EMailService.Service
 {
     public class EMailManager : IEMailManager
     {
-        private readonly BillingTemplate _billingTemplate;
         private readonly IEmailService _emailService;
 
-        public EMailManager(BillingTemplate billingTemplate,
-            IEmailService emailService)
+        public EMailManager(IEmailService emailService)
         {
-            _billingTemplate = billingTemplate;
             _emailService = emailService;
         }
 
@@ -78,8 +74,6 @@ namespace EmailRequest.EMailService.Service
 
         public async Task SendMailAsync(EmailSenderModal emailSenderModal)
         {
-            // Setup the email body, subject and other detail
-            _billingTemplate.SetupEmailTemplate(emailSenderModal);
 
             await _emailService.SendEmail(emailSenderModal);
         }

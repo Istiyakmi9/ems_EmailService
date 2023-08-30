@@ -8,6 +8,7 @@ using EmailRequest.Service.TemplateService;
 using EmalRequest.Service;
 using Microsoft.Extensions.FileProviders;
 using ModalLayer.Modal;
+using ModalLayer.Modal.HtmlTemplateModel;
 
 namespace EmailRequest
 {
@@ -26,7 +27,6 @@ namespace EmailRequest
             // add services
             services.AddScoped<IEMailManager, EMailManager>();
             services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<NewRegistrationTemplate>();
             services.AddSingleton<IDb, Db>(x =>
             {
                 var db = new Db();
@@ -34,6 +34,17 @@ namespace EmailRequest
                 return db;
             });
             services.AddScoped<BillingTemplate>();
+            services.AddScoped<AttendanceTemplate>();
+            services.AddScoped<AutoLeaveMigrationTemplate>();
+            services.AddScoped<AttendanceApprovalTemplate>();
+            services.AddScoped<ForgotPasswordTemplate>();
+            services.AddScoped<LeaveApprovalTemplate>();
+            services.AddScoped<LeaveRequestTemplate>();
+            services.AddScoped<NewRegistrationTemplate>();
+            services.AddScoped<OfferLetterTemplate>();
+            services.AddScoped<PayrollTemplate>();
+            services.AddScoped<TimesheetApprovalTemplate>();
+            services.AddScoped<TimesheetTemplate>();
         }
         public void Configure(WebApplication app, IWebHostEnvironment env)
         {

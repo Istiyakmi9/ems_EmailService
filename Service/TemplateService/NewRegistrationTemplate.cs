@@ -54,7 +54,6 @@ namespace EmailRequest.Service.TemplateService
             emailSenderModal.FileLocationDetail.LogoPath = "Documents\\logos";
             emailSenderModal.FileLocationDetail.RootPath = "E:\\Marghub\\core\\ems\\OnlineDataBuilderServer\\OnlineDataBuilder";
 
-
             var html = File.ReadAllText(PdfTemplatePath);
             html = html.Replace("[[Salutation]]", emailTemplate.Salutation).Replace("[[Body]]", emailTemplate.BodyContent)
                 .Replace("[[EmailClosingStatement]]", emailTemplate.EmailClosingStatement)
