@@ -39,7 +39,7 @@ namespace EmailRequest.Service
             var config = new ConsumerConfig
             {
                 GroupId = "gid-consumers",
-                BootstrapServers = $"{KafkaServiceConfig.ServiceName}:{KafkaServiceConfig.Port}"
+                BootstrapServers = $"{KafkaServiceConfig.ServiceName}.kafka.svc.cluster.local:{KafkaServiceConfig.Port}"
             };
 
             _logger.LogInformation($"[Kafka] Start listning kafka topic: {KafkaServiceConfig.AttendanceEmailTopic}");
