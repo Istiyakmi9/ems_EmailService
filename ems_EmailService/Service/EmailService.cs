@@ -1,8 +1,10 @@
-﻿using ModalLayer.Modal;
-using System.Net.Mail;
-using System.Net;
-using BottomhalfCore.DatabaseLayer.Common.Code;
+﻿using BottomhalfCore.DatabaseLayer.Common.Code;
 using EmailRequest.Service;
+using ModalLayer.Modal;
+using System.Net;
+using System.Net.Mail;
+using System.Net.Mime;
+using System.Text;
 
 namespace EmalRequest.Service
 {
@@ -46,13 +48,29 @@ namespace EmalRequest.Service
                 Credentials = new NetworkCredential(fromAddress.Address, _emailSettingDetail.Credentials)
             };
 
-
             var message = new MailMessage();
+            var logoPath = Path.Combine(fileLocationDetail.RootPath, fileLocationDetail.LogoPath, ApplicationConstants.HiringBellLogoSmall);
+
+            // Create the HTML view  
+            AlternateView htmlView = AlternateView.CreateAlternateViewFromString(emailSenderModal.Body, Encoding.UTF8, MediaTypeNames.Text.Html);
+
+            // Create a plain text message for client that don't support HTML  
+            string mediaType = MediaTypeNames.Image.Jpeg;
+            LinkedResource img = new LinkedResource(logoPath, mediaType);
+
+            // Make sure you set all these values!!!  
+            img.ContentId = "logo";
+            img.ContentType.MediaType = mediaType;
+            img.TransferEncoding = TransferEncoding.Base64;
+            img.ContentType.Name = img.ContentId;
+            img.ContentLink = new Uri("cid:" + img.ContentId);
+            htmlView.LinkedResources.Add(img);
+            message.AlternateViews.Add(htmlView);
+
             message.Subject = emailSenderModal.Subject;
-            message.Body = emailSenderModal.Body;
+            //message.Body = emailSenderModal.Body;
             message.IsBodyHtml = true;
             message.From = fromAddress;
-            //message.AlternateViews.Add(CreateHtmlMessage(emailSenderModal.Body, logoPath));
 
             foreach (var emailAddress in emailSenderModal.To)
                 message.To.Add(emailAddress);
@@ -77,14 +95,12 @@ namespace EmalRequest.Service
                     }
                 }
 
-                var logoPath = Path.Combine(fileLocationDetail.RootPath, fileLocationDetail.LogoPath, ApplicationConstants.HiringBellLogoSmall);
-                if (File.Exists(logoPath))
-                {
-                    var attachment = new System.Net.Mail.Attachment(logoPath);
-                    attachment.ContentId = ApplicationConstants.LogoContentId;
-                    message.Attachments.Add(attachment);
-                }
-
+                //if (File.Exists(logoPath))
+                //{
+                //    var attachment = new System.Net.Mail.Attachment(logoPath);
+                //    attachment.ContentId = ApplicationConstants.LogoContentId;
+                //    message.Attachments.Add(attachment);
+                //}
                 smtp.Send(message);
             }
             catch (Exception ex)

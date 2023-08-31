@@ -5,7 +5,10 @@ using EmailRequest.EMailService.Service;
 using EmailRequest.Service;
 using EmailRequest.Service.TemplateService;
 using EmalRequest.Service;
+using Microsoft.Extensions.FileProviders;
 using ModalLayer;
+using ModalLayer.Modal;
+using ModalLayer.Modal.HtmlTemplateModel;
 
 namespace EmailRequest
 {
@@ -39,8 +42,18 @@ namespace EmailRequest
                 db.SetupConnectionString("server=192.168.0.101;port=3306;database=onlinedatabuilder;User Id=istiyak;password=live@Bottomhalf_001;Connection Timeout=30;Connection Lifetime=0;Min Pool Size=0;Max Pool Size=100;Pooling=true;");
                 return db;
             });
-
             services.AddScoped<BillingTemplate>();
+            services.AddScoped<AttendanceTemplate>();
+            services.AddScoped<AutoLeaveMigrationTemplate>();
+            services.AddScoped<AttendanceApprovalTemplate>();
+            services.AddScoped<ForgotPasswordTemplate>();
+            services.AddScoped<LeaveApprovalTemplate>();
+            services.AddScoped<LeaveRequestTemplate>();
+            services.AddScoped<NewRegistrationTemplate>();
+            services.AddScoped<OfferLetterTemplate>();
+            services.AddScoped<PayrollTemplate>();
+            services.AddScoped<TimesheetApprovalTemplate>();
+            services.AddScoped<TimesheetTemplate>();
         }
         public void Configure(WebApplication app, IWebHostEnvironment env)
         {
@@ -52,7 +65,12 @@ namespace EmailRequest
             }
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                   Path.Combine(Directory.GetCurrentDirectory())),
+                RequestPath = "/Files"
+            });
             app.UseRouting();
             app.UseAuthorization();
             app.MapControllers();

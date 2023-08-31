@@ -1,40 +1,39 @@
 ﻿using BottomhalfCore.DatabaseLayer.Common.Code;
 using ModalLayer.Modal;
-using ModalLayer;
-using System.Text;
+using ModalLayer.Modal.HtmlTemplateModel;
 
 namespace EmailRequest.Service.TemplateService
 {
     public class BillingTemplate
     {
         private readonly IDb _db;
-        private EmailSettingDetail _emailSettingDetail { get; set; }
-
-        public BillingTemplate(IDb db)
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly IEmailService _emailService;
+        public BillingTemplate(IDb db, IWebHostEnvironment hostingEnvironment, IEmailService emailService)
         {
             _db = db;
+            _hostingEnvironment = hostingEnvironment;
+            _emailService = emailService;
         }
 
-        private EmailRequestModal GetRequestModal()
+        private void ValidateModal(BillingTemplateModel billingTemplateModel)
         {
-            return new EmailRequestModal();
-        }
+            if (billingTemplateModel.ToAddress.Count == 0)
+                throw new HiringBellException("To address is missing.");
 
-        private void ValidateModal(EmailRequestModal emailRequestModal)
-        {
-            if (emailRequestModal.TemplateId <= 0)
-                throw new HiringBellException("No email template has been selected.");
+            if (billingTemplateModel.Year == 0)
+                throw new HiringBellException("Year is missing.");
 
-            if (string.IsNullOrEmpty(emailRequestModal.ManagerName))
-                throw new HiringBellException("Manager name is missing.");
+            if (string.IsNullOrEmpty(billingTemplateModel.Month))
+                throw new HiringBellException("Month is missing.");
 
-            if (string.IsNullOrEmpty(emailRequestModal.DeveloperName))
+            if (string.IsNullOrEmpty(billingTemplateModel.DeveloperName))
                 throw new HiringBellException("Developer name is missing.");
         }
 
         private EmailTemplate GetEmailTemplate()
         {
-            EmailTemplate emailTemplate = _db.Get<EmailTemplate>("sp_email_template_get", new { EmailTemplateId = TemplateEnum.Billing });
+            EmailTemplate emailTemplate = _db.Get<EmailTemplate>("sp_email_template_get", new { EmailTemplateId = (int)TemplateEnum.Billing });
 
             if (emailTemplate == null)
                 throw new HiringBellException("Email template not found. Please contact to admin.");
@@ -42,41 +41,35 @@ namespace EmailRequest.Service.TemplateService
             return emailTemplate;
         }
 
-        public void SetupEmailTemplate(EmailSenderModal emailSenderModal)
+        public void SetupEmailTemplate(BillingTemplateModel billingTemplateModel)
         {
-            FileLocationDetail fileLocationDetail = emailSenderModal.FileLocationDetail;
-            var emailRequestModal = GetRequestModal();
-
             // validate request modal
-            ValidateModal(emailRequestModal);
-
-
+            ValidateModal(billingTemplateModel);
             EmailTemplate emailTemplate = GetEmailTemplate();
-
-            var footer = new StringBuilder();
-            footer.Append($"<div>{emailTemplate.EmailClosingStatement}</div>");
-            footer.Append($"<div>{emailTemplate.SignatureDetail}</div>");
-            footer.Append($"<div>{emailTemplate.ContactNo}</div>");
-
-            var logoPath = Path.Combine(fileLocationDetail.RootPath, fileLocationDetail.LogoPath, ApplicationConstants.HiringBellLogoSmall);
-            if (File.Exists(logoPath))
-            {
-                footer.Append($"<div><img src=\"cid:{ApplicationConstants.LogoContentId}\" style=\"width: 10rem;margin-top: 1rem;\"></div>");
-            }
-
-
-            emailTemplate.Footer = footer.ToString();
-
+            EmailSenderModal emailSenderModal = new EmailSenderModal();
             emailTemplate.SubjectLine = emailTemplate.EmailTitle;
-
-            emailTemplate.BodyContent = emailTemplate.BodyContent
-                .Replace("[[DEVELOPER-NAME]]", emailRequestModal.DeveloperName)
-                .Replace("[[MONTH]]", emailRequestModal.ManagerName)
-                .Replace("[[YEAR]]", emailRequestModal.TotalNumberOfDays.ToString());
-
             emailSenderModal.Title = emailTemplate.EmailTitle;
             emailSenderModal.Subject = emailTemplate.SubjectLine;
-            emailSenderModal.Body = string.Concat(emailTemplate.BodyContent, emailTemplate.Footer);
+            emailSenderModal.To = billingTemplateModel.ToAddress;
+            emailSenderModal.FileLocationDetail = new FileLocationDetail();
+
+            var PdfTemplatePath = Path.Combine(_hostingEnvironment.ContentRootPath, "Documents\\htmltemplates\\emailtemplate.html");
+            emailSenderModal.FileLocationDetail.LogoPath = "Documents\\logos";
+            emailSenderModal.FileLocationDetail.RootPath = "E:\\Marghub\\core\\ems\\OnlineDataBuilderServer\\OnlineDataBuilder";
+
+
+            var html = File.ReadAllText(PdfTemplatePath);
+            html = html.Replace("[[Salutation]]", emailTemplate.Salutation).Replace("[[Body]]", emailTemplate.BodyContent)
+                .Replace("[[EmailClosingStatement]]", emailTemplate.EmailClosingStatement)
+                .Replace("[[Note]]", emailTemplate.EmailNote != null ? $"Note: {emailTemplate.EmailNote}" : null)
+                .Replace("[[ContactNo]]", emailTemplate.ContactNo)
+                .Replace("[[DEVELOPER-NAME]]", billingTemplateModel.DeveloperName)
+                .Replace("[[MONTH]]", billingTemplateModel.Month)
+                .Replace("[[YEAR]]", billingTemplateModel.Year.ToString())
+                .Replace("[[Signature]]", emailTemplate.SignatureDetail);
+
+            emailSenderModal.Body = html;
+            _emailService.SendEmail(emailSenderModal);
         }
     }
 }
