@@ -2,11 +2,11 @@
 using BottomhalfCore.DatabaseLayer.MySql.Code;
 using EmailRequest.EMailService.Interface;
 using EmailRequest.EMailService.Service;
-using EmailRequest.MIddleware;
 using EmailRequest.Service;
 using EmailRequest.Service.TemplateService;
 using EmalRequest.Service;
 using Microsoft.Extensions.FileProviders;
+using ModalLayer;
 using ModalLayer.Modal;
 using ModalLayer.Modal.HtmlTemplateModel;
 
