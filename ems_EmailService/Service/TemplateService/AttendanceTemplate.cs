@@ -9,11 +9,16 @@ namespace EmailRequest.Service.TemplateService
         private readonly IDb _db;
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IEmailService _emailService;
-        public AttendanceTemplate(IDb db, IWebHostEnvironment hostingEnvironment, IEmailService emailService)
+        private readonly FileLocationDetail _fileLocationDetail;
+        public AttendanceTemplate(IDb db,
+            IWebHostEnvironment hostingEnvironment,
+            IEmailService emailService,
+            FileLocationDetail fileLocationDetail)
         {
             _db = db;
             _hostingEnvironment = hostingEnvironment;
             _emailService = emailService;
+            _fileLocationDetail = fileLocationDetail;
         }
 
         private void ValidateModal(AttendanceTemplateModel attendanceTemplateModel)
@@ -63,12 +68,9 @@ namespace EmailRequest.Service.TemplateService
             emailSenderModal.To = attendanceTemplateModel.ToAddress;
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
 
-            var PdfTemplatePath = Path.Combine(_hostingEnvironment.ContentRootPath, "Documents\\htmltemplates\\emailtemplate.html");
-            emailSenderModal.FileLocationDetail.LogoPath = "Documents\\logos";
-            emailSenderModal.FileLocationDetail.RootPath = "E:\\Marghub\\core\\ems\\OnlineDataBuilderServer\\OnlineDataBuilder";
-
-
+            var PdfTemplatePath = Path.Combine(_fileLocationDetail.HtmlTemplatePath, "emailtemplate.html");
             var html = File.ReadAllText(PdfTemplatePath);
+            
             html = html.Replace("[[Salutation]]", emailTemplate.Salutation).Replace("[[Body]]", emailTemplate.BodyContent)
                 .Replace("[[EmailClosingStatement]]", emailTemplate.EmailClosingStatement)
                 .Replace("[[Note]]", emailTemplate.EmailNote != null ? $"Note: {emailTemplate.EmailNote}" : null)
@@ -78,8 +80,8 @@ namespace EmailRequest.Service.TemplateService
                 .Replace("[[ACTION-TYPE]]", attendanceTemplateModel.ActionType)
                 .Replace("[DAYS-COUNT]]", attendanceTemplateModel.DayCount.ToString())
                 .Replace("[[USER-MESSAGE]]", attendanceTemplateModel.Message)
-                .Replace("[[FROM-DATE]]", attendanceTemplateModel.FromDate.ToString("dddd, dd MMMM yyyy"))
-                .Replace("[[TO-DATE]]", attendanceTemplateModel.FromDate.ToString("dddd, dd MMMM yyyy"))
+                .Replace("[[FROM-DATE]]", attendanceTemplateModel.FromDate?.ToString("dddd, dd MMMM yyyy"))
+                .Replace("[[TO-DATE]]", attendanceTemplateModel.FromDate?.ToString("dddd, dd MMMM yyyy"))
                 .Replace("[[Signature]]", emailTemplate.SignatureDetail);
 
             emailSenderModal.Body = html;

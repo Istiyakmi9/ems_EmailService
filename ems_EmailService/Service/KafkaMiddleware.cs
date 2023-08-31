@@ -1,6 +1,10 @@
 ﻿using Confluent.Kafka;
+using EmailRequest.Service.TemplateService;
 using Microsoft.Extensions.Options;
 using ModalLayer;
+using ModalLayer.Modal;
+using ModalLayer.Modal.HtmlTemplateModel;
+using Newtonsoft.Json;
 
 namespace EmailRequest.Service
 {
@@ -23,7 +27,10 @@ namespace EmailRequest.Service
         {
             _logger.LogInformation("[Kafka] Kafka listener registered successfully.");
 
-            SubscribeKafkaTopic();
+            Task.Run(() =>
+            {
+                SubscribeKafkaTopic();
+            });
 
             return Task.CompletedTask;
         }
@@ -36,23 +43,42 @@ namespace EmailRequest.Service
 
         private void SubscribeKafkaTopic()
         {
-            var config = new ConsumerConfig
+            using (IServiceScope scope = _serviceProvider.CreateScope())
             {
-                GroupId = "gid-consumers",
-                BootstrapServers = $"{KafkaServiceConfig.ServiceName}.kafka.svc.cluster.local:{KafkaServiceConfig.Port}"
-            };
-
-            _logger.LogInformation($"[Kafka] Start listning kafka topic: {KafkaServiceConfig.AttendanceEmailTopic}");
-            using (var consumer = new ConsumerBuilder<Null, string>(config).Build())
-            {
-                consumer.Subscribe(KafkaServiceConfig.AttendanceEmailTopic);
-                while (true)
+                var config = new ConsumerConfig
                 {
-                    _logger.LogInformation($"[Kafka] Waiting on topic: {KafkaServiceConfig.AttendanceEmailTopic}");
-                    var message = consumer.Consume();
-                    _logger.LogInformation($"[Kafka] Message received: {message.Message.Value}");
+                    GroupId = "gid-consumers",
+                    BootstrapServers = $"{KafkaServiceConfig.ServiceName}:{KafkaServiceConfig.Port}"
+                };
+
+                _logger.LogInformation($"[Kafka] Start listning kafka topic: {KafkaServiceConfig.AttendanceEmailTopic}");
+                using (var consumer = new ConsumerBuilder<Null, string>(config).Build())
+                {
+                    consumer.Subscribe(KafkaServiceConfig.AttendanceEmailTopic);
+                    while (true)
+                    {
+                        _logger.LogInformation($"[Kafka] Waiting on topic: {KafkaServiceConfig.AttendanceEmailTopic}");
+                        var message = consumer.Consume();
+
+                        HandleMessageSendEmail(message, scope);
+                    }
                 }
             }
+        }
+
+        private void HandleMessageSendEmail(ConsumeResult<Null, string> result, IServiceScope scope)
+        {
+            if (string.IsNullOrWhiteSpace(result.Message.Value))
+                throw new Exception("[Kafka] Received invalid object from producer.");
+
+            _logger.LogInformation($"[Kafka] Message received: {result.Message.Value}");
+            var attendanceTemplate = scope.ServiceProvider.GetRequiredService<AttendanceTemplate>();
+            AttendanceTemplateModel? attendanceTemplateModel = JsonConvert.DeserializeObject<AttendanceTemplateModel>(result.Message.Value);
+
+            if (attendanceTemplateModel == null)
+                throw new Exception("[Kafka] Received invalid object from producer.");
+
+            attendanceTemplate.SetupEmailTemplate(attendanceTemplateModel);
         }
     }
 }

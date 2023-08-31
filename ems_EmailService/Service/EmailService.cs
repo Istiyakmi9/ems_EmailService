@@ -11,20 +11,21 @@ namespace EmalRequest.Service
     public class EmailService : IEmailService
     {
         private readonly IDb _db;
-        private EmailSettingDetail _emailSettingDetail { get; set; }
+        private readonly FileLocationDetail _fileLocationDetail;
 
-        public EmailService(IDb db)
+        public EmailService(IDb db, FileLocationDetail fileLocationDetail)
         {
             _db = db;
+            _fileLocationDetail = fileLocationDetail;
         }
 
-        private void GetEmailSettingDetail()
+        private EmailSettingDetail GetEmailSettingDetail()
         {
             var result = _db.Get<EmailSettingDetail>("sp_email_setting_detail_get", new { EmailSettingDetailId = 0 });
             if (result == null)
                 throw HiringBellException.ThrowBadRequest("Unable to find the email template");
 
-            _emailSettingDetail = result;
+            return result;
         }
 
         public async Task SendEmail(EmailSenderModal emailSenderModal)
@@ -32,9 +33,7 @@ namespace EmalRequest.Service
             if (emailSenderModal == null || emailSenderModal.To == null || emailSenderModal.To.Count == 0)
                 throw new HiringBellException("To send email receiver address is mandatory. Receiver address not found.");
 
-            FileLocationDetail fileLocationDetail = emailSenderModal.FileLocationDetail;
-
-            GetEmailSettingDetail();
+            EmailSettingDetail _emailSettingDetail = GetEmailSettingDetail();
 
             var fromAddress = new System.Net.Mail.MailAddress(_emailSettingDetail!.EmailAddress, emailSenderModal.Title);
 
@@ -49,7 +48,7 @@ namespace EmalRequest.Service
             };
 
             var message = new MailMessage();
-            var logoPath = Path.Combine(fileLocationDetail.RootPath, fileLocationDetail.LogoPath, ApplicationConstants.HiringBellLogoSmall);
+            var logoPath = Path.Combine(_fileLocationDetail.LogoPath, ApplicationConstants.HiringBellLogoSmall);
 
             // Create the HTML view  
             AlternateView htmlView = AlternateView.CreateAlternateViewFromString(emailSenderModal.Body, Encoding.UTF8, MediaTypeNames.Text.Html);
@@ -90,17 +89,11 @@ namespace EmalRequest.Service
                     foreach (var files in emailSenderModal.FileDetails)
                     {
                         message.Attachments.Add(
-                            new System.Net.Mail.Attachment(Path.Combine(fileLocationDetail.RootPath, files.FilePath, files.FileName + ".pdf"))
+                            new System.Net.Mail.Attachment(Path.Combine(_fileLocationDetail.RootPath, files.FilePath, files.FileName + ".pdf"))
                         );
                     }
                 }
 
-                //if (File.Exists(logoPath))
-                //{
-                //    var attachment = new System.Net.Mail.Attachment(logoPath);
-                //    attachment.ContentId = ApplicationConstants.LogoContentId;
-                //    message.Attachments.Add(attachment);
-                //}
                 smtp.Send(message);
             }
             catch (Exception ex)
