@@ -12,18 +12,24 @@ namespace EmalRequest.Service
     {
         private readonly IDb _db;
         private readonly FileLocationDetail _fileLocationDetail;
+        private readonly ILogger<IEmailService> _logger;
 
-        public EmailService(IDb db, FileLocationDetail fileLocationDetail)
+        public EmailService(IDb db, FileLocationDetail fileLocationDetail, ILogger<IEmailService> logger)
         {
             _db = db;
             _fileLocationDetail = fileLocationDetail;
+            _logger = logger;
         }
 
         private EmailSettingDetail GetEmailSettingDetail()
         {
+            _logger.LogInformation($"[6. Kafka] Reading email setting detail.");
             var result = _db.Get<EmailSettingDetail>("sp_email_setting_detail_get", new { EmailSettingDetailId = 0 });
             if (result == null)
+            {
+                _logger.LogError($"[Kafka] Reading email setting fail.");
                 throw HiringBellException.ThrowBadRequest("Unable to find the email template");
+            }
 
             return result;
         }
@@ -37,6 +43,8 @@ namespace EmalRequest.Service
 
             var fromAddress = new System.Net.Mail.MailAddress(_emailSettingDetail!.EmailAddress, emailSenderModal.Title);
 
+            _logger.LogInformation($"[7. Kafka] Reading email setting read successfully.");
+
             var smtp = new SmtpClient
             {
                 Host = _emailSettingDetail.EmailHost,
@@ -47,6 +55,7 @@ namespace EmalRequest.Service
                 Credentials = new NetworkCredential(fromAddress.Address, _emailSettingDetail.Credentials)
             };
 
+            _logger.LogInformation($"[8. Kafka] Configuring image path and body content.");
             var message = new MailMessage();
             var logoPath = Path.Combine(_fileLocationDetail.LogoPath, ApplicationConstants.HiringBellLogoSmall);
 
@@ -94,11 +103,14 @@ namespace EmalRequest.Service
                     }
                 }
 
+                _logger.LogInformation($"[9. Kafka] Ready to fire send event.");
                 smtp.Send(message);
+
+                _logger.LogInformation($"[10. Kafka] Sent successfully.");
             }
             catch (Exception ex)
             {
-                var _e = ex;
+                _logger.LogError($"[9. Kafka] Sending email got exception. Messge: {ex.Message}");
                 throw;
             }
 

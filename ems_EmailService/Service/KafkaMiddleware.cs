@@ -78,6 +78,7 @@ namespace EmailRequest.Service
             if (attendanceTemplateModel == null)
                 throw new Exception("[Kafka] Received invalid object from producer.");
 
+            _logger.LogInformation($"[Kafka] Starting sending request.");
             attendanceTemplate.SetupEmailTemplate(attendanceTemplateModel);
         }
     }
