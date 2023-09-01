@@ -162,24 +162,23 @@
 &lt;/head&gt;
 &lt;body style="margin: 0; font-family: Arial, Helvetica, sans-serif; background-color: #f0f0f0; padding: 1.5rem;"&gt;
     &lt;div style="text-align: center; margin-top: 2rem; margin-bottom: 3rem;"&gt;
-        &lt;img src="http://www.hiringbell.in/dn/Files/Documents/logos/hb-t-logo.png" alt="Logo" style="width: 15%;"&gt;
+        &lt;img src="http://www.hiringbell.in/dn/Files/Documents/logos/hb-t-logo.png" alt="Logo" style="width: 44vw; max-width: 15rem;"&gt;
     &lt;/div&gt;
     &lt;div style=" background-color: #fff; max-width: 600px; margin: 0 auto;  padding: 20px; box-sizing: border-box;"&gt;
         &lt;div style="padding: 10px; box-sizing: border-box;"&gt;
             &lt;h2&gt;Hi __REVEIVERNAME__,&lt;/h2&gt;
             &lt;p style="line-height: 1.5; margin-top: 20px;"&gt;
-                __WORKTYPE__ of __DEVELOPERNAME__ has been approved by __MANAGENAME__
-            &lt;/p&gt;
+                __REQUESTTYPE__ of __DEVELOPERNAME__ has been __STATUS__            &lt;/p&gt;
 
             &lt;div style="padding-bottom: 6px; margin-top: 2rem;"&gt;
                 &lt;b&gt;Attendance Request Detail&lt;/b&gt;
             &lt;/div&gt;
             &lt;div style="border-bottom: 1px solid #d9d9d9; border-top: 1px solid #d9d9d9; padding-top: 10px; padding-bottom: 10px;"&gt;
                 &lt;div style="margin-top: 10px;"&gt;
-                    &lt;span&gt;Duration: __DATE__ [__NOOFDAYS__ Day(s))]&lt;/span&gt;
+                    &lt;span&gt;Duration: __DATE__ [__NOOFDAYS__ Day(s)]&lt;/span&gt;
                 &lt;/div&gt;
                 &lt;div style="margin-top: 10px;"&gt;
-                    &lt;span&gt;Attendance Request Type: __WORKTYPE__&lt;/span&gt;
+                    &lt;span&gt;Attendance Request Type: __REQUESTTYPE__&lt;/span&gt;
                 &lt;/div&gt;
                 &lt;div style="margin-top: 10px;"&gt;
                     &lt;span&gt;Statu: &lt;span style="color: __STATUSCOLOR__;"&gt;__STATUS__&lt;/span&gt;&lt;/span&gt;
