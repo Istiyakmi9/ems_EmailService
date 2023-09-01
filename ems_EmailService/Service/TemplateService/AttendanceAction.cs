@@ -1,43 +1,44 @@
 ﻿using BottomhalfCore.DatabaseLayer.Common.Code;
+using EmailRequest.Service.Interface;
 using ModalLayer.Modal;
 using ModalLayer.Modal.HtmlTemplateModel;
 
 namespace EmailRequest.Service.TemplateService
 {
-    public class AttendanceApprovalTemplate
+    public class AttendanceAction : IEmailServiceRequest
     {
         private readonly IDb _db;
         private readonly IEmailService _emailService;
-        public AttendanceApprovalTemplate(IDb db, IEmailService emailService)
+        public AttendanceAction(IDb db, IEmailService emailService)
         {
             _db = db;
             _emailService = emailService;
         }
 
-        private void ValidateModal(AttendanceApprovalTemplateModel attendanceApprovalTemplateModel)
+        private void ValidateModal(AttendanceRequestModal attendanceRequestModal)
         {
-            if (attendanceApprovalTemplateModel.ToAddress.Count == 0)
+            if (attendanceRequestModal.ToAddress.Count == 0)
                 throw new HiringBellException("To address is missing.");
 
-            if (string.IsNullOrEmpty(attendanceApprovalTemplateModel.RequestType))
+            if (string.IsNullOrEmpty(attendanceRequestModal.RequestType))
                 throw new HiringBellException("Request type is missing.");
 
-            if (string.IsNullOrEmpty(attendanceApprovalTemplateModel.DeveloperName))
+            if (string.IsNullOrEmpty(attendanceRequestModal.DeveloperName))
                 throw new HiringBellException("Developer name is missing.");
 
-            if (string.IsNullOrEmpty(attendanceApprovalTemplateModel.ActionType))
+            if (string.IsNullOrEmpty(attendanceRequestModal.ActionType))
                 throw new HiringBellException("Action type is missing.");
 
-            if (attendanceApprovalTemplateModel.DayCount < 0)
+            if (attendanceRequestModal.DayCount < 0)
                 throw new HiringBellException("Days count is missing.");
 
-            if (attendanceApprovalTemplateModel?.FromDate == null)
+            if (attendanceRequestModal?.FromDate == null)
                 throw new HiringBellException("Date is missing.");
 
-            if (attendanceApprovalTemplateModel?.ToDate == null)
+            if (attendanceRequestModal?.ToDate == null)
                 throw new HiringBellException("Date is missing.");
 
-            if (string.IsNullOrEmpty(attendanceApprovalTemplateModel.ManagerName))
+            if (string.IsNullOrEmpty(attendanceRequestModal.ManagerName))
                 throw new HiringBellException("Manager name is missing.");
         }
 
@@ -51,21 +52,21 @@ namespace EmailRequest.Service.TemplateService
             return emailTemplate;
         }
 
-        public void SetupEmailTemplate(AttendanceApprovalTemplateModel attendanceApprovalTemplateModel)
+        public void SetupEmailTemplate(AttendanceRequestModal attendanceRequestModal)
         {
             // validate request modal
-            ValidateModal(attendanceApprovalTemplateModel);
+            ValidateModal(attendanceRequestModal);
             EmailTemplate emailTemplate = GetEmailTemplate();
             EmailSenderModal emailSenderModal = new EmailSenderModal();
-            emailSenderModal.Title = emailTemplate.EmailTitle.Replace("__COMPANYNAME__", attendanceApprovalTemplateModel.CompanyName);
-            emailSenderModal.Subject = emailTemplate.SubjectLine.Replace("__DATE__", attendanceApprovalTemplateModel.FromDate.ToString("dddd, dd MMMM yyyy"))
-                .Replace("__REQUESTTYPE__", attendanceApprovalTemplateModel.RequestType)
-                .Replace("__STATUS__", attendanceApprovalTemplateModel.ActionType);
-            emailSenderModal.To = attendanceApprovalTemplateModel.ToAddress;
+            emailSenderModal.Title = emailTemplate.EmailTitle.Replace("__COMPANYNAME__", attendanceRequestModal.CompanyName);
+            emailSenderModal.Subject = emailTemplate.SubjectLine.Replace("__DATE__", attendanceRequestModal.FromDate.ToString("dddd, dd MMMM yyyy"))
+                .Replace("__REQUESTTYPE__", attendanceRequestModal.RequestType)
+                .Replace("__STATUS__", attendanceRequestModal.ActionType);
+            emailSenderModal.To = attendanceRequestModal.ToAddress;
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
 
             string statusColor = string.Empty;
-            switch (attendanceApprovalTemplateModel!.ActionType?.ToLower())
+            switch (attendanceRequestModal!.ActionType?.ToLower())
             {
                 case ApplicationConstants.Submitted:
                     statusColor = "#0D6EFD";
@@ -79,18 +80,18 @@ namespace EmailRequest.Service.TemplateService
             }
 
             var html = ApplicationResource.AttendanceApplied;
-            html = html.Replace("__REQUESTTYPE__", attendanceApprovalTemplateModel!.RequestType)
+            html = html.Replace("__REQUESTTYPE__", attendanceRequestModal!.RequestType)
                 .Replace("__REVEIVERNAME__", string.Empty)
-                .Replace("__DEVELOPERNAME__", attendanceApprovalTemplateModel.DeveloperName)
-                .Replace("__MANAGENAME__", attendanceApprovalTemplateModel.ManagerName)
-                .Replace("__DATE__", attendanceApprovalTemplateModel.FromDate.ToString("dddd, dd MMMM yyyy"))
-                .Replace("__NOOFDAYS__", attendanceApprovalTemplateModel.DayCount.ToString())
-                .Replace("__STATUS__", attendanceApprovalTemplateModel.ActionType)
+                .Replace("__DEVELOPERNAME__", attendanceRequestModal.DeveloperName)
+                .Replace("__MANAGENAME__", attendanceRequestModal.ManagerName)
+                .Replace("__DATE__", attendanceRequestModal.FromDate.ToString("dddd, dd MMMM yyyy"))
+                .Replace("__NOOFDAYS__", attendanceRequestModal.DayCount.ToString())
+                .Replace("__STATUS__", attendanceRequestModal.ActionType)
                 .Replace("__ACTIONNAME__", "Approved By")
                 .Replace("__STATUSCOLOR__", statusColor)
                 .Replace("__MESSAGE__", emailTemplate.EmailNote ?? string.Empty)
                 .Replace("__MOBILENO__", emailTemplate.ContactNo)
-                .Replace("__COMPANYNAME__", attendanceApprovalTemplateModel.CompanyName)
+                .Replace("__COMPANYNAME__", attendanceRequestModal.CompanyName)
                 .Replace("__EMAILNOTE__", "Please write us back if you have any issue")
                 .Replace("__EMAILENCLOSINGSTATEMENT__", emailTemplate.SignatureDetail)
                 .Replace("__ENCLOSINGSTATEMENT__", emailTemplate.EmailClosingStatement);

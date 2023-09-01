@@ -45,9 +45,9 @@ namespace EmailRequest
             });
 
             services.AddScoped<BillingTemplate>();
-            services.AddScoped<AttendanceTemplate>();
+            services.AddScoped<AttendanceRequested>();
             services.AddScoped<AutoLeaveMigrationTemplate>();
-            services.AddScoped<AttendanceApprovalTemplate>();
+            services.AddScoped<AttendanceAction>();
             services.AddScoped<ForgotPasswordTemplate>();
             services.AddScoped<LeaveApprovalTemplate>();
             services.AddScoped<LeaveRequestTemplate>();

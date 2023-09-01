@@ -9,9 +9,9 @@ namespace EmailRequest.Controllers
     public class EmailController : ControllerBase
     {
         private readonly BillingTemplate _billingTemplate;
-        private readonly AttendanceTemplate _attendanceTemplate;
+        private readonly AttendanceRequested _attendanceTemplate;
         private readonly AutoLeaveMigrationTemplate _autoLeaveMigrationTemplate;
-        private readonly AttendanceApprovalTemplate _attendanceApprovalTemplate;
+        private readonly AttendanceAction _attendanceApprovalTemplate;
         private readonly ForgotPasswordTemplate _forgotPasswordTemplate;
         private readonly LeaveApprovalTemplate _leaveApprovalTemplate;
         private readonly LeaveRequestTemplate _leaveRequestTemplate;
@@ -22,9 +22,9 @@ namespace EmailRequest.Controllers
         private readonly TimesheetTemplate _timesheetTemplate;
 
         public EmailController(BillingTemplate billingTemplate, 
-            AttendanceTemplate attendanceTemplate, 
+            AttendanceRequested attendanceTemplate, 
             AutoLeaveMigrationTemplate autoLeaveMigrationTemplate, 
-            AttendanceApprovalTemplate attendanceApprovalTemplate, 
+            AttendanceAction attendanceApprovalTemplate, 
             ForgotPasswordTemplate forgotPasswordTemplate, 
             LeaveApprovalTemplate leaveApprovalTemplate, 
             LeaveRequestTemplate leaveRequestTemplate, 
@@ -63,7 +63,7 @@ namespace EmailRequest.Controllers
         }
 
         [HttpPost("Email/AttendanceEmail")]
-        public async Task AttendanceEmail(AttendanceTemplateModel attendanceTemplateModel)
+        public async Task AttendanceEmail(AttendanceRequestModal attendanceTemplateModel)
         {
             _attendanceTemplate.SetupEmailTemplate(attendanceTemplateModel);
             await Task.CompletedTask;
@@ -77,9 +77,9 @@ namespace EmailRequest.Controllers
         }
 
         [HttpPost("Email/AttendanceApprovalEmail")]
-        public async Task AttendanceApprovalEmail(AttendanceApprovalTemplateModel attendanceApprovalTemplateModel)
+        public async Task AttendanceApprovalEmail(AttendanceRequestModal attendanceRequestModal)
         {
-            _attendanceApprovalTemplate.SetupEmailTemplate(attendanceApprovalTemplateModel);
+            _attendanceApprovalTemplate.SetupEmailTemplate(attendanceRequestModal);
             await Task.CompletedTask;
         }
 

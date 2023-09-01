@@ -1,4 +1,6 @@
 ﻿using Confluent.Kafka;
+using EmailRequest.Modal;
+using EmailRequest.Service.Interface;
 using EmailRequest.Service.TemplateService;
 using Microsoft.Extensions.Options;
 using ModalLayer;
@@ -72,14 +74,26 @@ namespace EmailRequest.Service
                 throw new Exception("[Kafka] Received invalid object from producer.");
 
             _logger.LogInformation($"[Kafka] Message received: {result.Message.Value}");
-            var attendanceTemplate = scope.ServiceProvider.GetRequiredService<AttendanceTemplate>();
-            AttendanceTemplateModel? attendanceTemplateModel = JsonConvert.DeserializeObject<AttendanceTemplateModel>(result.Message.Value);
 
+            IEmailServiceRequest? emailServiceRequest = null;
+
+            AttendanceRequestModal? attendanceTemplateModel = JsonConvert.DeserializeObject<AttendanceRequestModal>(result.Message.Value);
             if (attendanceTemplateModel == null)
                 throw new Exception("[Kafka] Received invalid object from producer.");
 
+            switch (attendanceTemplateModel.ActionType)
+            {
+                case AppConstants.Submitted:
+                    emailServiceRequest = scope.ServiceProvider.GetRequiredService<AttendanceRequested>();
+                    break;
+                case AppConstants.Approved:
+                case AppConstants.Rejected:
+                    emailServiceRequest = scope.ServiceProvider.GetRequiredService<AttendanceAction>();
+                    break;
+            }
+
             _logger.LogInformation($"[Kafka] Starting sending request.");
-            attendanceTemplate.SetupEmailTemplate(attendanceTemplateModel);
+            emailServiceRequest!.SetupEmailTemplate(attendanceTemplateModel);
         }
     }
 }

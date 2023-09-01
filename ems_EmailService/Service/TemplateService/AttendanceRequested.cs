@@ -1,23 +1,23 @@
 ﻿using BottomhalfCore.DatabaseLayer.Common.Code;
+using EmailRequest.Service.Interface;
 using ModalLayer.Modal;
 using ModalLayer.Modal.HtmlTemplateModel;
-using System.Resources;
 
 namespace EmailRequest.Service.TemplateService
 {
-    public class AttendanceTemplate
+    public class AttendanceRequested : IEmailServiceRequest
     {
         private readonly IDb _db;
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IEmailService _emailService;
         private readonly FileLocationDetail _fileLocationDetail;
-        private readonly ILogger<AttendanceTemplate> _logger;
+        private readonly ILogger<AttendanceRequested> _logger;
 
-        public AttendanceTemplate(IDb db,
+        public AttendanceRequested(IDb db,
             IWebHostEnvironment hostingEnvironment,
             IEmailService emailService,
             FileLocationDetail fileLocationDetail,
-            ILogger<AttendanceTemplate> logger)
+            ILogger<AttendanceRequested> logger)
         {
             _db = db;
             _hostingEnvironment = hostingEnvironment;
@@ -26,7 +26,7 @@ namespace EmailRequest.Service.TemplateService
             _logger = logger;
         }
 
-        private void ValidateModal(AttendanceTemplateModel attendanceTemplateModel)
+        private void ValidateModal(AttendanceRequestModal attendanceTemplateModel)
         {
             if (attendanceTemplateModel.ToAddress.Count == 0)
                 throw new HiringBellException("To address is missing.");
@@ -43,9 +43,8 @@ namespace EmailRequest.Service.TemplateService
             if (attendanceTemplateModel.DayCount < 0)
                 throw new HiringBellException("Days count is missing.");
 
-            if (attendanceTemplateModel.FromDate == null)
+            if (attendanceTemplateModel?.FromDate == null)
                 throw new HiringBellException("Date is missing.");
-
         }
 
         private EmailTemplate GetEmailTemplate()
@@ -62,7 +61,7 @@ namespace EmailRequest.Service.TemplateService
             return emailTemplate;
         }
 
-        public void SetupEmailTemplate(AttendanceTemplateModel attendanceTemplateModel)
+        public void SetupEmailTemplate(AttendanceRequestModal attendanceTemplateModel)
         {
             try
             {
@@ -70,8 +69,8 @@ namespace EmailRequest.Service.TemplateService
                 EmailTemplate emailTemplate = GetEmailTemplate();
                 EmailSenderModal emailSenderModal = new EmailSenderModal();
                 emailSenderModal.Title = emailTemplate.EmailTitle.Replace("__COMPANYNAME__", attendanceTemplateModel.CompanyName);
-                emailSenderModal.Subject = emailTemplate.SubjectLine.Replace("__DATE__", attendanceTemplateModel?.FromDate?.ToString("dddd, dd MMMM yyyy"))
-                    .Replace("__REQUESTTYPE__", attendanceTemplateModel.RequestType)
+                emailSenderModal.Subject = emailTemplate.SubjectLine.Replace("__DATE__", attendanceTemplateModel?.FromDate.ToString("dddd, dd MMMM yyyy"))
+                    .Replace("__REQUESTTYPE__", attendanceTemplateModel!.RequestType)
                     .Replace("__STATUS__", attendanceTemplateModel.ActionType);
                 emailSenderModal.To = attendanceTemplateModel.ToAddress;
                 emailSenderModal.FileLocationDetail = new FileLocationDetail();
@@ -95,7 +94,7 @@ namespace EmailRequest.Service.TemplateService
                 html = html.Replace("__REQUESTTYPE__", attendanceTemplateModel!.RequestType)
                     .Replace("__REVEIVERNAME__", attendanceTemplateModel.ManagerName)
                     .Replace("__DEVELOPERNAME__", attendanceTemplateModel.DeveloperName)
-                    .Replace("__DATE__", attendanceTemplateModel?.FromDate?.ToString("dddd, dd MMMM yyyy"))
+                    .Replace("__DATE__", attendanceTemplateModel?.FromDate.ToString("dddd, dd MMMM yyyy"))
                     .Replace("__NOOFDAYS__", attendanceTemplateModel!.DayCount.ToString())
                     .Replace("__STATUS__", attendanceTemplateModel.ActionType)
                     .Replace("__ACTIONNAME__", "Manager Name")
