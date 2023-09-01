@@ -1,6 +1,7 @@
 ﻿using BottomhalfCore.DatabaseLayer.Common.Code;
 using ModalLayer.Modal;
 using ModalLayer.Modal.HtmlTemplateModel;
+using System.Resources;
 
 namespace EmailRequest.Service.TemplateService
 {
@@ -81,6 +82,8 @@ namespace EmailRequest.Service.TemplateService
 
                 _logger.LogInformation($"[3. Kafka] Reading template content.");
                 var PdfTemplatePath = Path.Combine(_fileLocationDetail.HtmlTemplatePath, "emailtemplate.html");
+
+
                 var html = File.ReadAllText(PdfTemplatePath);
 
                 _logger.LogInformation($"[4. Kafka] Converting template.");
