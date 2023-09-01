@@ -8,8 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 var startup = new Startup(builder);
 startup.ConfigureServices(builder.Services);
-builder.Services.AddHostedService<KafkaService>();
 
+builder.Services.AddHostedService<KafkaService>();
 var app = builder.Build();
 
-startup.Configure(app, builder.Environment);
+startup.Configure(app);

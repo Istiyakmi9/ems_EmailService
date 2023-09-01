@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace ModalLayer.Modal
 {
@@ -12,7 +10,7 @@ namespace ModalLayer.Modal
         public string DocumentFolder { set; get; }
         public string UserFolder { set; get; }
         public string BillFolder { set; get; }
-        public List<string> HtmlTemplaePath { set; get; }
+        public string HtmlTemplatePath { set; get; }
         public string User { set; get; }
         public string BillsPath { set; get; }
         public string StaffingBillTemplate { set; get; }

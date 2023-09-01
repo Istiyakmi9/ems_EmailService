@@ -74,7 +74,6 @@ namespace EmailRequest.EMailService.Service
 
         public async Task SendMailAsync(EmailSenderModal emailSenderModal)
         {
-
             await _emailService.SendEmail(emailSenderModal);
         }
 
