@@ -81,24 +81,24 @@ namespace EmailRequest.Service.TemplateService
                 _logger.LogInformation($"[2. Kafka] Email setting data configured.");
 
                 _logger.LogInformation($"[3. Kafka] Reading template content.");
-                var PdfTemplatePath = Path.Combine(_fileLocationDetail.HtmlTemplatePath, "emailtemplate.html");
 
-
-                var html = File.ReadAllText(PdfTemplatePath);
+                var html = ApplicationResource.AttendanceApplied;
+                string statusColor = attendanceTemplateModel?.ActionType?.ToLower() == "submitted" ? "#0D6EFD" : attendanceTemplateModel?.ActionType?.ToLower() == "approved" ? "#198754"
+                    : "#DC3545";
 
                 _logger.LogInformation($"[4. Kafka] Converting template.");
                 html = html.Replace("[[Salutation]]", emailTemplate.Salutation).Replace("[[Body]]", emailTemplate.BodyContent)
-                    .Replace("[[EmailClosingStatement]]", emailTemplate.EmailClosingStatement)
-                    .Replace("[[Note]]", emailTemplate.EmailNote != null ? $"Note: {emailTemplate.EmailNote}" : null)
-                    .Replace("[[ContactNo]]", emailTemplate.ContactNo)
-                    .Replace("[[DEVELOPER-NAME]]", attendanceTemplateModel.DeveloperName)
                     .Replace("[[REQUEST-TYPE]]", attendanceTemplateModel.RequestType)
-                    .Replace("[[ACTION-TYPE]]", attendanceTemplateModel.ActionType)
-                    .Replace("[DAYS-COUNT]]", attendanceTemplateModel.DayCount.ToString())
-                    .Replace("[[USER-MESSAGE]]", attendanceTemplateModel.Message)
-                    .Replace("[[FROM-DATE]]", attendanceTemplateModel.FromDate?.ToString("dddd, dd MMMM yyyy"))
-                    .Replace("[[TO-DATE]]", attendanceTemplateModel.FromDate?.ToString("dddd, dd MMMM yyyy"))
-                    .Replace("[[Signature]]", emailTemplate.SignatureDetail);
+                       .Replace("__WORKTYPE__", attendanceTemplateModel.WorkType)
+                    .Replace("__DEVELOPERNAME__", attendanceTemplateModel.DeveloperName)
+                    .Replace("__DATE__", attendanceTemplateModel?.FromDate?.ToString("dddd, dd MMMM yyyy"))
+                    .Replace("__NOOFDAYS__", attendanceTemplateModel.DayCount.ToString())
+                    .Replace("__STATUS__", attendanceTemplateModel.ActionType)
+                    .Replace("__STATUSCOLOR__", statusColor)
+                    .Replace("__MESSAGE__", emailTemplate.EmailNote != null ? $"Note: {emailTemplate.EmailNote}" : null)
+                    .Replace("__MOBILENO__", emailTemplate.ContactNo)
+                    .Replace("__COMPANYNAME__", emailTemplate.SignatureDetail)
+                    .Replace("__ENCLOSINGSTATEMENT__", emailTemplate.EmailClosingStatement);
 
                 emailSenderModal.Body = html;
 

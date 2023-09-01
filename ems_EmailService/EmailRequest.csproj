@@ -32,6 +32,21 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="ApplicationResource.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ApplicationResource.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="ApplicationResource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ApplicationResource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Documents\htmltemplates\billing\payslipTemplate.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

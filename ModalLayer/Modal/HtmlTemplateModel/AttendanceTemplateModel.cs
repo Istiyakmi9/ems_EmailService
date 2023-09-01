@@ -13,5 +13,6 @@ namespace ModalLayer.Modal.HtmlTemplateModel
         public string DeveloperName { set; get; }
         public string Message { set; get; }
         public int DayCount { set; get; }
+        public string WorkType { get; set; }
     }
 }

@@ -7,12 +7,11 @@ namespace EmailRequest.Service.TemplateService
     public class AttendanceApprovalTemplate
     {
         private readonly IDb _db;
-        private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IEmailService _emailService;
-        public AttendanceApprovalTemplate(IDb db, IWebHostEnvironment hostingEnvironment, IEmailService emailService)
+        private readonly CurrentSession _currentSession;
+        public AttendanceApprovalTemplate(IDb db, IEmailService emailService)
         {
             _db = db;
-            _hostingEnvironment = hostingEnvironment;
             _emailService = emailService;
         }
 
@@ -59,32 +58,27 @@ namespace EmailRequest.Service.TemplateService
             ValidateModal(attendanceApprovalTemplateModel);
             EmailTemplate emailTemplate = GetEmailTemplate();
             EmailSenderModal emailSenderModal = new EmailSenderModal();
-            emailTemplate.EmailTitle = emailTemplate.EmailTitle.Replace("[[DEVELOPER-NAME]]", attendanceApprovalTemplateModel.DeveloperName)
-                .Replace("[[ACTION-TYPE]]", attendanceApprovalTemplateModel.ActionType);
-            emailTemplate.SubjectLine = emailTemplate.EmailTitle;
-            emailSenderModal.Title = emailTemplate.EmailTitle;
-            emailSenderModal.Subject = emailTemplate.SubjectLine;
+            emailSenderModal.Title = emailTemplate.EmailTitle.Replace("__COMPANYNAME__", attendanceApprovalTemplateModel.CompanyName);
+            emailSenderModal.Subject = emailTemplate.SubjectLine.Replace("__DATE__", attendanceApprovalTemplateModel.FromDate.ToString("dddd, dd MMMM yyyy"))
+                .Replace("__REQUESTTYPE__", attendanceApprovalTemplateModel.RequestType)
+                .Replace("__STATUS__", attendanceApprovalTemplateModel.ActionType);
             emailSenderModal.To = attendanceApprovalTemplateModel.ToAddress;
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
-
-            var PdfTemplatePath = Path.Combine(_hostingEnvironment.ContentRootPath, "Documents\\htmltemplates\\emailtemplate.html");
-            emailSenderModal.FileLocationDetail.LogoPath = "Documents\\logos";
-            emailSenderModal.FileLocationDetail.RootPath = "E:\\Marghub\\core\\ems\\OnlineDataBuilderServer\\OnlineDataBuilder";
-
-
-            var html = File.ReadAllText(PdfTemplatePath);
-            html = html.Replace("[[Salutation]]", emailTemplate.Salutation).Replace("[[Body]]", emailTemplate.BodyContent)
-                .Replace("[[EmailClosingStatement]]", emailTemplate.EmailClosingStatement)
-                .Replace("[[Note]]", emailTemplate.EmailNote != null ? $"Note: {emailTemplate.EmailNote}" : null)
-                .Replace("[[ContactNo]]", emailTemplate.ContactNo)
-                .Replace("[[DEVELOPER-NAME]]", attendanceApprovalTemplateModel.DeveloperName)
-                .Replace("[[REQUEST-TYPE]]", attendanceApprovalTemplateModel.RequestType)
-                .Replace("[[ACTION-TYPE]]", attendanceApprovalTemplateModel.ActionType)
-                .Replace("[DAYS-COUNT]]", attendanceApprovalTemplateModel.DayCount.ToString())
-                .Replace("[[MANAGER-NAME]]", attendanceApprovalTemplateModel.ManagerName)
-                .Replace("[[FROM-DATE]]", attendanceApprovalTemplateModel.FromDate.ToString("dddd, dd MMMM yyyy"))
-                .Replace("[[TO-DATE]]", attendanceApprovalTemplateModel.FromDate.ToString("dddd, dd MMMM yyyy"))
-                .Replace("[[Signature]]", emailTemplate.SignatureDetail);
+            string statusColor = attendanceApprovalTemplateModel?.ActionType?.ToLower() == "submitted" ? "#0D6EFD" : attendanceApprovalTemplateModel?.ActionType?.ToLower() == "approved" ? "#198754"
+                : "#DC3545";
+            var html = ApplicationResource.AttendanceApplied;
+            html = html.Replace("__REQUESTTYPE__", attendanceApprovalTemplateModel.RequestType)
+                .Replace("__DEVELOPERNAME__", attendanceApprovalTemplateModel.DeveloperName)
+                .Replace("__MANAGENAME__", attendanceApprovalTemplateModel.ManagerName)
+                .Replace("__DATE__", attendanceApprovalTemplateModel.FromDate.ToString("dddd, dd MMMM yyyy"))
+                .Replace("__NOOFDAYS__", attendanceApprovalTemplateModel.DayCount.ToString())
+                .Replace("__STATUS__", attendanceApprovalTemplateModel.ActionType)
+                .Replace("__STATUSCOLOR__", statusColor)
+                .Replace("__MESSAGE__", emailTemplate.EmailNote != null ? $"Note: {emailTemplate.EmailNote}" : null)
+                .Replace("__MOBILENO__", emailTemplate.ContactNo)
+                .Replace("__COMPANYNAME__", attendanceApprovalTemplateModel.CompanyName)
+                .Replace("__EMAILENCLOSINGSTATEMENT__", emailTemplate.SignatureDetail)
+                .Replace("__ENCLOSINGSTATEMENT__", emailTemplate.EmailClosingStatement);
 
             emailSenderModal.Body = html;
             _emailService.SendEmail(emailSenderModal);
