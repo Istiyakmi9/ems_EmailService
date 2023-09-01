@@ -46,8 +46,6 @@ namespace EmailRequest.Service.TemplateService
             if (attendanceTemplateModel.FromDate == null)
                 throw new HiringBellException("Date is missing.");
 
-            if (attendanceTemplateModel.ToDate == null)
-                throw new HiringBellException("Date is missing.");
         }
 
         private EmailTemplate GetEmailTemplate()
@@ -71,10 +69,10 @@ namespace EmailRequest.Service.TemplateService
                 ValidateModal(attendanceTemplateModel);
                 EmailTemplate emailTemplate = GetEmailTemplate();
                 EmailSenderModal emailSenderModal = new EmailSenderModal();
-                emailTemplate.EmailTitle = emailTemplate.EmailTitle.Replace("[[REQUEST-TYPE]]", attendanceTemplateModel.RequestType);
-                emailTemplate.SubjectLine = emailTemplate.EmailTitle;
-                emailSenderModal.Title = emailTemplate.EmailTitle;
-                emailSenderModal.Subject = emailTemplate.SubjectLine;
+                emailSenderModal.Title = emailTemplate.EmailTitle.Replace("__COMPANYNAME__", attendanceTemplateModel.CompanyName);
+                emailSenderModal.Subject = emailTemplate.SubjectLine.Replace("__DATE__", attendanceTemplateModel?.FromDate?.ToString("dddd, dd MMMM yyyy"))
+                    .Replace("__REQUESTTYPE__", attendanceTemplateModel.RequestType)
+                    .Replace("__STATUS__", attendanceTemplateModel.ActionType);
                 emailSenderModal.To = attendanceTemplateModel.ToAddress;
                 emailSenderModal.FileLocationDetail = new FileLocationDetail();
 
@@ -95,7 +93,8 @@ namespace EmailRequest.Service.TemplateService
                 }
 
                 html = html.Replace("__WORKTYPE__", attendanceTemplateModel!.WorkType)
-                    .Replace("__REVEIVERNAME__", "")
+                    .Replace("__REQUESTTYPE__", attendanceTemplateModel!.RequestType)
+                    .Replace("__REVEIVERNAME__", attendanceTemplateModel.ManagerName)
                     .Replace("__DEVELOPERNAME__", attendanceTemplateModel.DeveloperName)
                     .Replace("__DATE__", attendanceTemplateModel?.FromDate?.ToString("dddd, dd MMMM yyyy"))
                     .Replace("__NOOFDAYS__", attendanceTemplateModel!.DayCount.ToString())
