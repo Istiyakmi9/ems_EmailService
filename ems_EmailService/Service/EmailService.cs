@@ -58,27 +58,10 @@ namespace EmalRequest.Service
                 };
 
                 _logger.LogInformation($"[8. Kafka] Configuring image path and body content.");
+                
                 var message = new MailMessage();
-                var logoPath = Path.Combine(_fileLocationDetail.LogoPath, ApplicationConstants.HiringBellLogoSmall);
-
-                // Create the HTML view  
-                AlternateView htmlView = AlternateView.CreateAlternateViewFromString(emailSenderModal.Body, Encoding.UTF8, MediaTypeNames.Text.Html);
-
-                // Create a plain text message for client that don't support HTML  
-                string mediaType = MediaTypeNames.Image.Jpeg;
-                LinkedResource img = new LinkedResource(logoPath, mediaType);
-
-                // Make sure you set all these values!!!  
-                img.ContentId = "logo";
-                img.ContentType.MediaType = mediaType;
-                img.TransferEncoding = TransferEncoding.Base64;
-                img.ContentType.Name = img.ContentId;
-                img.ContentLink = new Uri("cid:" + img.ContentId);
-                htmlView.LinkedResources.Add(img);
-                message.AlternateViews.Add(htmlView);
-
                 message.Subject = emailSenderModal.Subject;
-                //message.Body = emailSenderModal.Body;
+                message.Body = emailSenderModal.Body;
                 message.IsBodyHtml = true;
                 message.From = fromAddress;
 
