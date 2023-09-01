@@ -8,7 +8,6 @@ namespace EmailRequest.Service.TemplateService
     {
         private readonly IDb _db;
         private readonly IEmailService _emailService;
-        private readonly CurrentSession _currentSession;
         public AttendanceApprovalTemplate(IDb db, IEmailService emailService)
         {
             _db = db;
@@ -32,10 +31,10 @@ namespace EmailRequest.Service.TemplateService
             if (attendanceApprovalTemplateModel.DayCount < 0)
                 throw new HiringBellException("Days count is missing.");
 
-            if (attendanceApprovalTemplateModel.FromDate == null)
+            if (attendanceApprovalTemplateModel?.FromDate == null)
                 throw new HiringBellException("Date is missing.");
 
-            if (attendanceApprovalTemplateModel.ToDate == null)
+            if (attendanceApprovalTemplateModel?.ToDate == null)
                 throw new HiringBellException("Date is missing.");
 
             if (string.IsNullOrEmpty(attendanceApprovalTemplateModel.ManagerName))
@@ -64,19 +63,35 @@ namespace EmailRequest.Service.TemplateService
                 .Replace("__STATUS__", attendanceApprovalTemplateModel.ActionType);
             emailSenderModal.To = attendanceApprovalTemplateModel.ToAddress;
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
-            string statusColor = attendanceApprovalTemplateModel?.ActionType?.ToLower() == "submitted" ? "#0D6EFD" : attendanceApprovalTemplateModel?.ActionType?.ToLower() == "approved" ? "#198754"
-                : "#DC3545";
+
+            string statusColor = string.Empty;
+            switch (attendanceApprovalTemplateModel!.ActionType?.ToLower())
+            {
+                case ApplicationConstants.Submitted:
+                    statusColor = "#0D6EFD";
+                    break;
+                case ApplicationConstants.Approved:
+                    statusColor = "#198754";
+                    break;
+                case ApplicationConstants.Rejected:
+                    statusColor = "#DC3545";
+                    break;
+            }
+
             var html = ApplicationResource.AttendanceApplied;
-            html = html.Replace("__REQUESTTYPE__", attendanceApprovalTemplateModel.RequestType)
+            html = html.Replace("__REQUESTTYPE__", attendanceApprovalTemplateModel!.RequestType)
+                .Replace("__REVEIVERNAME__", string.Empty)
                 .Replace("__DEVELOPERNAME__", attendanceApprovalTemplateModel.DeveloperName)
                 .Replace("__MANAGENAME__", attendanceApprovalTemplateModel.ManagerName)
                 .Replace("__DATE__", attendanceApprovalTemplateModel.FromDate.ToString("dddd, dd MMMM yyyy"))
                 .Replace("__NOOFDAYS__", attendanceApprovalTemplateModel.DayCount.ToString())
                 .Replace("__STATUS__", attendanceApprovalTemplateModel.ActionType)
+                .Replace("__ACTIONNAME__", "Approved By")
                 .Replace("__STATUSCOLOR__", statusColor)
-                .Replace("__MESSAGE__", emailTemplate.EmailNote != null ? $"Note: {emailTemplate.EmailNote}" : null)
+                .Replace("__MESSAGE__", emailTemplate.EmailNote ?? string.Empty)
                 .Replace("__MOBILENO__", emailTemplate.ContactNo)
                 .Replace("__COMPANYNAME__", attendanceApprovalTemplateModel.CompanyName)
+                .Replace("__EMAILNOTE__", "Please write us back if you have any issue")
                 .Replace("__EMAILENCLOSINGSTATEMENT__", emailTemplate.SignatureDetail)
                 .Replace("__ENCLOSINGSTATEMENT__", emailTemplate.EmailClosingStatement);
 
