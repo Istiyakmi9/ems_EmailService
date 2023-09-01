@@ -92,8 +92,7 @@ namespace EmailRequest.Service.TemplateService
                         break;
                 }
 
-                html = html.Replace("__WORKTYPE__", attendanceTemplateModel!.WorkType)
-                    .Replace("__REQUESTTYPE__", attendanceTemplateModel!.RequestType)
+                html = html.Replace("__REQUESTTYPE__", attendanceTemplateModel!.RequestType)
                     .Replace("__REVEIVERNAME__", attendanceTemplateModel.ManagerName)
                     .Replace("__DEVELOPERNAME__", attendanceTemplateModel.DeveloperName)
                     .Replace("__DATE__", attendanceTemplateModel?.FromDate?.ToString("dddd, dd MMMM yyyy"))
@@ -105,6 +104,7 @@ namespace EmailRequest.Service.TemplateService
                     .Replace("__MOBILENO__", emailTemplate.ContactNo)
                     .Replace("__COMPANYNAME__", emailTemplate.SignatureDetail)
                     .Replace("__EMAILNOTE__", "Please write us back if you have any issue")
+                    .Replace("__MANAGENAME__", attendanceTemplateModel.ManagerName)
                     .Replace("__ENCLOSINGSTATEMENT__", emailTemplate.EmailClosingStatement);
 
                 emailSenderModal.Body = html;
