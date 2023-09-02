@@ -5,10 +5,6 @@ VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmailRequest", "ems_EmailService\EmailRequest.csproj", "{C6AA5305-ED58-48BC-B4F6-473EA7B584AE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BottomhalfCore", "BottomhalfCore\BottomhalfCore.csproj", "{34A50260-9A4D-4CC8-A231-2C7C43F08690}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModalLayer", "ModalLayer\ModalLayer.csproj", "{8544C9F3-21F4-406A-B873-921AB54FA732}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,14 +15,6 @@ Global
 		{C6AA5305-ED58-48BC-B4F6-473EA7B584AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6AA5305-ED58-48BC-B4F6-473EA7B584AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6AA5305-ED58-48BC-B4F6-473EA7B584AE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{34A50260-9A4D-4CC8-A231-2C7C43F08690}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{34A50260-9A4D-4CC8-A231-2C7C43F08690}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{34A50260-9A4D-4CC8-A231-2C7C43F08690}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{34A50260-9A4D-4CC8-A231-2C7C43F08690}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8544C9F3-21F4-406A-B873-921AB54FA732}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8544C9F3-21F4-406A-B873-921AB54FA732}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8544C9F3-21F4-406A-B873-921AB54FA732}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8544C9F3-21F4-406A-B873-921AB54FA732}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
