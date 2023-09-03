@@ -8,26 +8,26 @@ namespace EmailRequest.Controllers
     [ApiController]
     public class EmailController : ControllerBase
     {
-        private readonly BillingTemplate _billingTemplate;
+        private readonly BillingService _billingTemplate;
         private readonly AttendanceRequested _attendanceTemplate;
         private readonly AutoLeaveMigrationTemplate _autoLeaveMigrationTemplate;
         private readonly AttendanceAction _attendanceApprovalTemplate;
         private readonly ForgotPasswordTemplate _forgotPasswordTemplate;
         private readonly LeaveApprovalTemplate _leaveApprovalTemplate;
-        private readonly LeaveRequestTemplate _leaveRequestTemplate;
+        private readonly LeaveRequested _leaveRequestTemplate;
         private readonly NewRegistrationTemplate _newRegistrationTemplate1;
         private readonly OfferLetterTemplate _offerLetterTemplate;
         private readonly PayrollTemplate _payrollTemplate;
         private readonly TimesheetApprovalTemplate _timesheetApprovalTemplate;
         private readonly TimesheetTemplate _timesheetTemplate;
 
-        public EmailController(BillingTemplate billingTemplate, 
+        public EmailController(BillingService billingTemplate, 
             AttendanceRequested attendanceTemplate, 
             AutoLeaveMigrationTemplate autoLeaveMigrationTemplate, 
             AttendanceAction attendanceApprovalTemplate, 
             ForgotPasswordTemplate forgotPasswordTemplate, 
             LeaveApprovalTemplate leaveApprovalTemplate, 
-            LeaveRequestTemplate leaveRequestTemplate, 
+            LeaveRequested leaveRequestTemplate, 
             NewRegistrationTemplate newRegistrationTemplate1, 
             OfferLetterTemplate offerLetterTemplate, 
             PayrollTemplate payrollTemplate, 
@@ -58,14 +58,13 @@ namespace EmailRequest.Controllers
         [HttpPost("Email/BillingEmail")]
         public async Task BillingEmail(BillingTemplateModel billingTemplateModel)
         {
-            _billingTemplate.SetupEmailTemplate(billingTemplateModel);
-            await Task.CompletedTask;
+            await _billingTemplate.SendEmailNotification(billingTemplateModel);
         }
 
         [HttpPost("Email/AttendanceEmail")]
         public async Task AttendanceEmail(AttendanceRequestModal attendanceTemplateModel)
         {
-            _attendanceTemplate.SetupEmailTemplate(attendanceTemplateModel);
+            _attendanceTemplate.SendEmailNotification(attendanceTemplateModel);
             await Task.CompletedTask;
         }
 
@@ -79,7 +78,7 @@ namespace EmailRequest.Controllers
         [HttpPost("Email/AttendanceApprovalEmail")]
         public async Task AttendanceApprovalEmail(AttendanceRequestModal attendanceRequestModal)
         {
-            _attendanceApprovalTemplate.SetupEmailTemplate(attendanceRequestModal);
+            _attendanceApprovalTemplate.SendEmailNotification(attendanceRequestModal);
             await Task.CompletedTask;
         }
 
@@ -91,14 +90,14 @@ namespace EmailRequest.Controllers
         }
 
         [HttpPost("Email/LeaveApprovalEmail")]
-        public async Task LeaveApprovalEmail(LeaveApprovalTemplateModel leaveApprovalTemplateModel)
+        public async Task LeaveApprovalEmail(LeaveTemplateModel leaveApprovalTemplateModel)
         {
             _leaveApprovalTemplate.SetupEmailTemplate(leaveApprovalTemplateModel);
             await Task.CompletedTask;
         }
 
         [HttpPost("Email/LeaveRequestEmail")]
-        public async Task LeaveRequestEmail(LeaveRequestTemplateModel leaveRequestTemplateModel)
+        public async Task LeaveRequestEmail(LeaveTemplateModel leaveRequestTemplateModel)
         {
             _leaveRequestTemplate.SetupEmailTemplate(leaveRequestTemplateModel);
             await Task.CompletedTask;

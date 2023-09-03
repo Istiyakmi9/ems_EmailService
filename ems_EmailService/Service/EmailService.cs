@@ -86,7 +86,7 @@ namespace EmalRequest.Service
                     }
                 }
 
-                _logger.LogInformation($"[9. Kafka] Ready to fire send event.");
+                _logger.LogInformation($"[9. Kafka] Ready to fire send event.");                
                 smtp.Send(message);
 
                 _logger.LogInformation($"[10. Kafka] Sent successfully.");

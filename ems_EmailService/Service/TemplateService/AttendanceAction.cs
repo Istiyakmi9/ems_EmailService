@@ -52,7 +52,7 @@ namespace EmailRequest.Service.TemplateService
             return emailTemplate;
         }
 
-        public void SetupEmailTemplate(AttendanceRequestModal attendanceRequestModal)
+        public async Task SendEmailNotification(AttendanceRequestModal attendanceRequestModal)
         {
             // validate request modal
             ValidateModal(attendanceRequestModal);
@@ -97,7 +97,8 @@ namespace EmailRequest.Service.TemplateService
                 .Replace("__ENCLOSINGSTATEMENT__", emailTemplate.EmailClosingStatement);
 
             emailSenderModal.Body = html;
-            _emailService.SendEmail(emailSenderModal);
+
+            await Task.Run(() => _emailService.SendEmail(emailSenderModal));
         }
     }
 }

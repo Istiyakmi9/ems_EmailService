@@ -4,6 +4,6 @@ namespace EmailRequest.Service.Interface
 {
     public interface IEmailServiceRequest
     {
-        void SetupEmailTemplate(AttendanceRequestModal attendanceRequestModal);
+        Task SendEmailNotification(AttendanceRequestModal attendanceRequestModal);
     }
 }
