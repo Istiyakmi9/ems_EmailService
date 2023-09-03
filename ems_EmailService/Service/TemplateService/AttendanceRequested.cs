@@ -61,7 +61,7 @@ namespace EmailRequest.Service.TemplateService
             return emailTemplate;
         }
 
-        public void SetupEmailTemplate(AttendanceRequestModal attendanceTemplateModel)
+        public async Task SendEmailNotification(AttendanceRequestModal attendanceTemplateModel)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace EmailRequest.Service.TemplateService
                 emailSenderModal.Body = html;
 
                 _logger.LogInformation($"[5. Kafka] Template converted.");
-                _emailService.SendEmail(emailSenderModal);
+                await Task.Run(() => _emailService.SendEmail(emailSenderModal));
             }
             catch (Exception ex)
             {

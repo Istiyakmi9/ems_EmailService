@@ -1,15 +1,16 @@
 ﻿using BottomhalfCore.DatabaseLayer.Common.Code;
+using EmailRequest.Service.Interface;
 using ModalLayer.Modal;
 using ModalLayer.Modal.HtmlTemplateModel;
 
 namespace EmailRequest.Service.TemplateService
 {
-    public class BillingTemplate
+    public class BillingService
     {
         private readonly IDb _db;
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IEmailService _emailService;
-        public BillingTemplate(IDb db, IWebHostEnvironment hostingEnvironment, IEmailService emailService)
+        public BillingService(IDb db, IWebHostEnvironment hostingEnvironment, IEmailService emailService)
         {
             _db = db;
             _hostingEnvironment = hostingEnvironment;
@@ -41,35 +42,28 @@ namespace EmailRequest.Service.TemplateService
             return emailTemplate;
         }
 
-        public void SetupEmailTemplate(BillingTemplateModel billingTemplateModel)
+        public async Task SendEmailNotification(BillingTemplateModel billingTemplateModel)
         {
             // validate request modal
             ValidateModal(billingTemplateModel);
             EmailTemplate emailTemplate = GetEmailTemplate();
             EmailSenderModal emailSenderModal = new EmailSenderModal();
-            emailTemplate.SubjectLine = emailTemplate.EmailTitle;
-            emailSenderModal.Title = emailTemplate.EmailTitle;
+            emailSenderModal.Title = emailTemplate.EmailTitle.Replace("__COMPANYNAME__", billingTemplateModel.CompanyName);
             emailSenderModal.Subject = emailTemplate.SubjectLine;
             emailSenderModal.To = billingTemplateModel.ToAddress;
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
+            emailSenderModal.FileDetails = billingTemplateModel.FileDetails;
 
-            var PdfTemplatePath = Path.Combine(_hostingEnvironment.ContentRootPath, "Documents\\htmltemplates\\emailtemplate.html");
-            emailSenderModal.FileLocationDetail.LogoPath = "Documents\\logos";
-            emailSenderModal.FileLocationDetail.RootPath = "E:\\Marghub\\core\\ems\\OnlineDataBuilderServer\\OnlineDataBuilder";
-
-
-            var html = File.ReadAllText(PdfTemplatePath);
-            html = html.Replace("[[Salutation]]", emailTemplate.Salutation).Replace("[[Body]]", emailTemplate.BodyContent)
-                .Replace("[[EmailClosingStatement]]", emailTemplate.EmailClosingStatement)
-                .Replace("[[Note]]", emailTemplate.EmailNote != null ? $"Note: {emailTemplate.EmailNote}" : null)
-                .Replace("[[ContactNo]]", emailTemplate.ContactNo)
-                .Replace("[[DEVELOPER-NAME]]", billingTemplateModel.DeveloperName)
-                .Replace("[[MONTH]]", billingTemplateModel.Month)
-                .Replace("[[YEAR]]", billingTemplateModel.Year.ToString())
-                .Replace("[[Signature]]", emailTemplate.SignatureDetail);
+            var html = ApplicationResource.EmployeeBill;
+            html = html.Replace("__MONTH__", billingTemplateModel.Month)
+                .Replace("__YEAR__", billingTemplateModel.Year.ToString())
+                .Replace("__DEVELOPERANAME__", billingTemplateModel.DeveloperName)
+                .Replace("__ROLE__", billingTemplateModel.Role)
+                .Replace("__MOBILENO__", emailTemplate.ContactNo)
+                .Replace("__COMPANYNAME__", emailTemplate.SignatureDetail);
 
             emailSenderModal.Body = html;
-            _emailService.SendEmail(emailSenderModal);
+            await Task.Run(() => _emailService.SendEmail(emailSenderModal));
         }
     }
 }

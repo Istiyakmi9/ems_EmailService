@@ -44,13 +44,13 @@ namespace EmailRequest
                 return db;
             });
 
-            services.AddScoped<BillingTemplate>();
+            services.AddScoped<BillingService>();
             services.AddScoped<AttendanceRequested>();
             services.AddScoped<AutoLeaveMigrationTemplate>();
             services.AddScoped<AttendanceAction>();
             services.AddScoped<ForgotPasswordTemplate>();
             services.AddScoped<LeaveApprovalTemplate>();
-            services.AddScoped<LeaveRequestTemplate>();
+            services.AddScoped<LeaveRequested>();
             services.AddScoped<NewRegistrationTemplate>();
             services.AddScoped<OfferLetterTemplate>();
             services.AddScoped<PayrollTemplate>();
@@ -60,19 +60,25 @@ namespace EmailRequest
             services.AddSingleton<FileLocationDetail>(service =>
             {
                 var fileLocationDetail = Configuration.GetSection("BillingFolders").Get<FileLocationDetail>();
+                string rootPath = fileLocationDetail.RootPath;
+                if (fileLocationDetail.RootPath == "prod")
+                {
+                    rootPath = env.ContentRootPath;
+                }
+
                 var locationDetail = new FileLocationDetail
                 {
-                    RootPath = env.ContentRootPath,
+                    RootPath = rootPath,
                     BillsPath = fileLocationDetail.BillsPath,
                     Location = fileLocationDetail.Location,
-                    HtmlTemplatePath = Path.Combine(env.ContentRootPath, fileLocationDetail.Location, fileLocationDetail.HtmlTemplatePath),
+                    HtmlTemplatePath = Path.Combine(rootPath, fileLocationDetail.Location, fileLocationDetail.HtmlTemplatePath),
                     StaffingBillPdfTemplate = fileLocationDetail.StaffingBillPdfTemplate,
                     StaffingBillTemplate = fileLocationDetail.StaffingBillTemplate,
                     PaysliplTemplate = fileLocationDetail.PaysliplTemplate,
                     DocumentFolder = fileLocationDetail.Location,
-                    UserFolder = Path.Combine(env.ContentRootPath, fileLocationDetail.Location, fileLocationDetail.User),
-                    BillFolder = Path.Combine(env.ContentRootPath, fileLocationDetail.Location, fileLocationDetail.BillsPath),
-                    LogoPath = Path.Combine(env.ContentRootPath, fileLocationDetail.Location, fileLocationDetail.LogoPath)
+                    UserFolder = Path.Combine(rootPath, fileLocationDetail.Location, fileLocationDetail.User),
+                    BillFolder = Path.Combine(rootPath, fileLocationDetail.Location, fileLocationDetail.BillsPath),
+                    LogoPath = Path.Combine(rootPath, fileLocationDetail.Location, fileLocationDetail.LogoPath)
                 };
 
                 return locationDetail;

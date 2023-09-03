@@ -4,19 +4,19 @@ using ModalLayer.Modal.HtmlTemplateModel;
 
 namespace EmailRequest.Service.TemplateService
 {
-    public class LeaveRequestTemplate
+    public class LeaveRequested
     {
         private readonly IDb _db;
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IEmailService _emailService;
-        public LeaveRequestTemplate(IDb db, IWebHostEnvironment hostingEnvironment, IEmailService emailService)
+        public LeaveRequested(IDb db, IWebHostEnvironment hostingEnvironment, IEmailService emailService)
         {
             _db = db;
             _hostingEnvironment = hostingEnvironment;
             _emailService = emailService;
         }
 
-        private void ValidateModal(LeaveRequestTemplateModel leaveRequestTemplateModel)
+        private void ValidateModal(LeaveTemplateModel leaveRequestTemplateModel)
         {
             if (leaveRequestTemplateModel.ToAddress.Count == 0)
                 throw new HiringBellException("To address is missing.");
@@ -50,7 +50,7 @@ namespace EmailRequest.Service.TemplateService
             return emailTemplate;
         }
 
-        public void SetupEmailTemplate(LeaveRequestTemplateModel leaveRequestTemplateModel)
+        public void SetupEmailTemplate(LeaveTemplateModel leaveRequestTemplateModel)
         {
             // validate request modal
             ValidateModal(leaveRequestTemplateModel);
@@ -65,9 +65,6 @@ namespace EmailRequest.Service.TemplateService
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
 
             var PdfTemplatePath = Path.Combine(_hostingEnvironment.ContentRootPath, "Documents\\htmltemplates\\emailtemplate.html");
-            emailSenderModal.FileLocationDetail.LogoPath = "Documents\\logos";
-            emailSenderModal.FileLocationDetail.RootPath = "E:\\Marghub\\core\\ems\\OnlineDataBuilderServer\\OnlineDataBuilder";
-
 
             var html = File.ReadAllText(PdfTemplatePath);
             html = html.Replace("[[Salutation]]", emailTemplate.Salutation).Replace("[[Body]]", emailTemplate.BodyContent)

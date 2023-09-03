@@ -16,7 +16,7 @@ namespace EmailRequest.Service.TemplateService
             _emailService = emailService;
         }
 
-        private void ValidateModal(LeaveApprovalTemplateModel leaveApprovalTemplateModel)
+        private void ValidateModal(LeaveTemplateModel leaveApprovalTemplateModel)
         {
             if (leaveApprovalTemplateModel.ToAddress.Count == 0)
                 throw new HiringBellException("To address is missing.");
@@ -53,7 +53,7 @@ namespace EmailRequest.Service.TemplateService
             return emailTemplate;
         }
 
-        public void SetupEmailTemplate(LeaveApprovalTemplateModel leaveApprovalTemplateModel)
+        public void SetupEmailTemplate(LeaveTemplateModel leaveApprovalTemplateModel)
         {
             // validate request modal
             ValidateModal(leaveApprovalTemplateModel);

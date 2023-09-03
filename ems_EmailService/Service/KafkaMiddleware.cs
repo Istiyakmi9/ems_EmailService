@@ -1,4 +1,5 @@
 ﻿using Confluent.Kafka;
+using CoreBottomHalf.Modal.HtmlTemplateModel;
 using EmailRequest.Modal;
 using EmailRequest.Service.Interface;
 using EmailRequest.Service.TemplateService;
@@ -6,7 +7,9 @@ using Microsoft.Extensions.Options;
 using ModalLayer;
 using ModalLayer.Modal;
 using ModalLayer.Modal.HtmlTemplateModel;
+using ModalLayer.Modal.Leaves;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace EmailRequest.Service
 {
@@ -75,25 +78,49 @@ namespace EmailRequest.Service
 
             _logger.LogInformation($"[Kafka] Message received: {result.Message.Value}");
 
-            IEmailServiceRequest? emailServiceRequest = null;
 
-            AttendanceRequestModal? attendanceTemplateModel = JsonConvert.DeserializeObject<AttendanceRequestModal>(result.Message.Value);
-            if (attendanceTemplateModel == null)
+            CommonFields? commonFields = JsonConvert.DeserializeObject<CommonFields>(result.Message.Value);
+            if (commonFields == null)
                 throw new Exception("[Kafka] Received invalid object from producer.");
 
-            switch (attendanceTemplateModel.ActionType)
+            IEmailServiceRequest? emailServiceRequest = null;
+            switch (commonFields?.kafkaServiceName)
             {
-                case AppConstants.Submitted:
-                    emailServiceRequest = scope.ServiceProvider.GetRequiredService<AttendanceRequested>();
+                case KafkaServiceName.Attendance:
+                    AttendanceRequestModal? attendanceTemplateModel = JsonConvert.DeserializeObject<AttendanceRequestModal>(result.Message.Value);
+                    if (attendanceTemplateModel == null)
+                        throw new Exception("[Kafka] Received invalid object for attendance template modal from producer.");
+
+                    switch (attendanceTemplateModel.ActionType)
+                    {
+                        case AppConstants.Submitted:
+                            emailServiceRequest = scope.ServiceProvider.GetRequiredService<AttendanceRequested>();
+                            break;
+                        case AppConstants.Approved:
+                        case AppConstants.Rejected:
+                            emailServiceRequest = scope.ServiceProvider.GetRequiredService<AttendanceAction>();
+                            break;
+                    }
+
+                    _logger.LogInformation($"[Kafka] Starting sending request.");
+                    emailServiceRequest!.SendEmailNotification(attendanceTemplateModel);
                     break;
-                case AppConstants.Approved:
-                case AppConstants.Rejected:
-                    emailServiceRequest = scope.ServiceProvider.GetRequiredService<AttendanceAction>();
+                case KafkaServiceName.Billing:
+                    BillingTemplateModel? billingTemplateModel = JsonConvert.DeserializeObject<BillingTemplateModel>(result.Message.Value);
+                    if (billingTemplateModel == null)
+                        throw new Exception("[Kafka] Received invalid object for billing template modal from producer.");
+
+                    var billingService = scope.ServiceProvider.GetRequiredService<BillingService>();
+                    billingService?.SendEmailNotification(billingTemplateModel);
+                    break;
+                case KafkaServiceName.Leave:
+                    LeaveRequestModal? leaveRequestModal = JsonConvert.DeserializeObject<LeaveRequestModal>(result.Message.Value);
+                    if (leaveRequestModal == null)
+                        throw new Exception("[Kafka] Received invalid object for leave template modal from producer.");
+
+                    var leaveRequested = scope.ServiceProvider.GetRequiredService<LeaveRequested>();
                     break;
             }
-
-            _logger.LogInformation($"[Kafka] Starting sending request.");
-            emailServiceRequest!.SetupEmailTemplate(attendanceTemplateModel);
         }
     }
 }
