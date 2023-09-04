@@ -115,5 +115,33 @@ namespace EmailRequest {
                 return ResourceManager.GetString("EmployeeBill", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;!DOCTYPE html&gt;
+        ///&lt;html lang=&quot;en&quot;&gt;
+        ///&lt;head&gt;
+        ///    &lt;meta charset=&quot;UTF-8&quot;&gt;
+        ///    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+        ///    &lt;title&gt;Email Template&lt;/title&gt;
+        ///    &lt;style&gt;
+        ///        @media only screen and (min-width: 550px) {
+        ///            h2 {
+        ///                font-size: 18px;
+        ///            }
+        ///            p {
+        ///                font-size: 14px;
+        ///            }
+        ///            h5 {
+        ///                font-size: 16px;
+        ///            }
+        ///        }
+        ///        @media only screen and (max-width: 550px) {
+        /// [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string LeaveApplied {
+            get {
+                return ResourceManager.GetString("LeaveApplied", resourceCulture);
+            }
+        }
     }
 }
