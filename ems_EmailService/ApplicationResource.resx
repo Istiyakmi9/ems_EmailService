@@ -356,9 +356,6 @@
                     &lt;span&gt;Duration: __FROMDATE__ - __TODATE__ [__NOOFDAYS__ Day(s)]&lt;/span&gt;
                 &lt;/div&gt;
                 &lt;div style="margin-top: 10px;"&gt;
-                    &lt;span&gt;Leave Request Type: __LEAVETYPE__&lt;/span&gt;
-                &lt;/div&gt;
-                &lt;div style="margin-top: 10px;"&gt;
                     &lt;span&gt;Statu: &lt;span style="color: __STATUSCOLOR__;"&gt;__STATUS__&lt;/span&gt;&lt;/span&gt;
                 &lt;/div&gt;
                 &lt;div style="margin-top: 10px;"&gt;

@@ -114,11 +114,12 @@ namespace EmailRequest.Service
                     billingService?.SendEmailNotification(billingTemplateModel);
                     break;
                 case KafkaServiceName.Leave:
-                    LeaveRequestModal? leaveRequestModal = JsonConvert.DeserializeObject<LeaveRequestModal>(result.Message.Value);
-                    if (leaveRequestModal == null)
+                    LeaveTemplateModel? leaveTemplateModel = JsonConvert.DeserializeObject<LeaveTemplateModel>(result.Message.Value);
+                    if (leaveTemplateModel == null)
                         throw new Exception("[Kafka] Received invalid object for leave template modal from producer.");
 
                     var leaveRequested = scope.ServiceProvider.GetRequiredService<LeaveRequested>();
+                    leaveRequested.SetupEmailTemplate(leaveTemplateModel);
                     break;
             }
         }
