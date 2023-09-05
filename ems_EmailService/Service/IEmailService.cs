@@ -1,4 +1,4 @@
-﻿using ModalLayer.Modal;
+﻿using Bot.CoreBottomHalf.CommonModal;
 
 namespace EmailRequest.Service
 {

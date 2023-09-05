@@ -1,7 +1,7 @@
-﻿using BottomhalfCore.DatabaseLayer.Common.Code;
-using EmailRequest.Service.Interface;
+﻿using Bot.CoreBottomHalf.CommonModal;
+using BottomhalfCore.DatabaseLayer.Common.Code;
+using CoreBottomHalf.CommonModal.HtmlTemplateModel;
 using ModalLayer.Modal;
-using ModalLayer.Modal.HtmlTemplateModel;
 
 namespace EmailRequest.Service.TemplateService
 {
