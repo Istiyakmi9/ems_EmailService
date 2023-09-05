@@ -8,10 +8,13 @@ namespace EmailRequest.Service.TemplateService
     {
         private readonly IDb _db;
         private readonly IEmailService _emailService;
-        public LeaveRequested(IDb db, IEmailService emailService)
+        private ILogger<LeaveRequested> _logger;
+
+        public LeaveRequested(IDb db, IEmailService emailService, ILogger<LeaveRequested> logger)
         {
             _db = db;
             _emailService = emailService;
+            _logger = logger;
         }
 
         private void ValidateModal(LeaveTemplateModel leaveRequestTemplateModel)
@@ -89,6 +92,8 @@ namespace EmailRequest.Service.TemplateService
 
             emailSenderModal.Body = html;
             _emailService.SendEmail(emailSenderModal);
+
+            _logger.LogInformation($"Email send successfully to: {leaveRequestTemplateModel.ToAddress[0]}");
         }
     }
 }
