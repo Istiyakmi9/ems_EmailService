@@ -1,4 +1,5 @@
-﻿using BottomhalfCore.DatabaseLayer.Common.Code;
+﻿using Bot.CoreBottomHalf.CommonModal;
+using BottomhalfCore.DatabaseLayer.Common.Code;
 using BottomhalfCore.DatabaseLayer.MySql.Code;
 using EmailRequest.EMailService.Interface;
 using EmailRequest.EMailService.Service;

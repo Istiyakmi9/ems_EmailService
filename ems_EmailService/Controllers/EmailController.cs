@@ -1,6 +1,6 @@
-﻿using EmailRequest.Service.TemplateService;
+﻿using CoreBottomHalf.CommonModal.HtmlTemplateModel;
+using EmailRequest.Service.TemplateService;
 using Microsoft.AspNetCore.Mvc;
-using ModalLayer.Modal.HtmlTemplateModel;
 
 namespace EmailRequest.Controllers
 {

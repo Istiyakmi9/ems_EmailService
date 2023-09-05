@@ -1,15 +1,12 @@
-﻿using Confluent.Kafka;
-using CoreBottomHalf.Modal.HtmlTemplateModel;
+﻿using Bot.CoreBottomHalf.CommonModal.HtmlTemplateModel;
+using Confluent.Kafka;
+using CoreBottomHalf.CommonModal.HtmlTemplateModel;
 using EmailRequest.Modal;
 using EmailRequest.Service.Interface;
 using EmailRequest.Service.TemplateService;
 using Microsoft.Extensions.Options;
 using ModalLayer;
-using ModalLayer.Modal;
-using ModalLayer.Modal.HtmlTemplateModel;
-using ModalLayer.Modal.Leaves;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace EmailRequest.Service
 {

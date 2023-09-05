@@ -1,7 +1,8 @@
-﻿using EmailRequest.EMailService.Interface;
+﻿using Bot.CoreBottomHalf.CommonModal;
+using Bot.CoreBottomHalf.Modal;
+using EmailRequest.EMailService.Interface;
 using EmailRequest.Service;
 using MailKit.Net.Pop3;
-using ModalLayer.Modal;
 using System.Globalization;
 
 namespace EmailRequest.EMailService.Service

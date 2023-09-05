@@ -1,4 +1,6 @@
-﻿using ModalLayer.Modal;
+﻿using Bot.CoreBottomHalf.CommonModal;
+using Bot.CoreBottomHalf.Modal;
+using EmailRequest.EMailService.Service;
 
 namespace EmailRequest.EMailService.Interface
 {

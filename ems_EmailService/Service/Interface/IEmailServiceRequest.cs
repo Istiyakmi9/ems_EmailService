@@ -1,4 +1,4 @@
-﻿using ModalLayer.Modal.HtmlTemplateModel;
+﻿using CoreBottomHalf.CommonModal.HtmlTemplateModel;
 
 namespace EmailRequest.Service.Interface
 {
