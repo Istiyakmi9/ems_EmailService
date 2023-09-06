@@ -63,7 +63,7 @@ namespace EmailRequest.Service
                         var message = consumer.Consume();
 
                         HandleMessageSendEmail(message, scope);
-                        consumer.Commit();
+                        // consumer.Commit();
                     }
                 }
             }
