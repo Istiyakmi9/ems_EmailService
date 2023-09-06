@@ -59,8 +59,7 @@ namespace EmailRequest.Service.TemplateService
             EmailTemplate emailTemplate = GetEmailTemplate();
             EmailSenderModal emailSenderModal = new EmailSenderModal();
             emailSenderModal.Title = emailTemplate.EmailTitle.Replace("__COMPANYNAME__", leaveRequestTemplateModel.CompanyName);
-            emailSenderModal.Subject = emailTemplate.SubjectLine.Replace("__FROMDATE__", leaveRequestTemplateModel?.FromDate.ToString("dd MMMM yyyy"))
-                .Replace("__TODATE__", leaveRequestTemplateModel?.ToDate.ToString("dd MMMM yyyy"))
+            emailSenderModal.Subject = emailTemplate.SubjectLine.Replace("__DEVELOPERNAME__", leaveRequestTemplateModel.DeveloperName)
                 .Replace("__REQUESTTYPE__", leaveRequestTemplateModel!.RequestType)
                 .Replace("__STATUS__", leaveRequestTemplateModel.ActionType);
             emailSenderModal.To = leaveRequestTemplateModel.ToAddress;
