@@ -60,9 +60,9 @@ namespace EmailRequest.Service.TemplateService
             EmailTemplate emailTemplate = GetEmailTemplate();
             EmailSenderModal emailSenderModal = new EmailSenderModal();
             emailSenderModal.Title = emailTemplate.EmailTitle.Replace("__COMPANYNAME__", attendanceRequestModal.CompanyName);
-            emailSenderModal.Subject = emailTemplate.SubjectLine.Replace("__DATE__", attendanceRequestModal.FromDate.ToString("dddd, dd MMMM yyyy"))
+            emailSenderModal.Subject = emailTemplate.SubjectLine.Replace("__DATE__", attendanceRequestModal.FromDate.ToString("dd MMMM yyyy"))
                 .Replace("__REQUESTTYPE__", attendanceRequestModal.RequestType)
-                .Replace("__STATUS__", attendanceRequestModal.ActionType);
+                .Replace("__DEVELOPERNAME__", attendanceRequestModal.DeveloperName);
             emailSenderModal.To = attendanceRequestModal.ToAddress;
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
 
