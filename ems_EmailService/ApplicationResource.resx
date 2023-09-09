@@ -506,14 +506,11 @@
     &lt;/div&gt;
     &lt;div style=" background-color: #fff; max-width: 600px; margin: 0 auto;  padding: 20px; box-sizing: border-box;"&gt;
         &lt;div style="padding: 10px; box-sizing: border-box;"&gt;
+            &lt;p style="line-height: 1.5; margin-top: 20px;"&gt;
+                Payroll of the month __PRESENTDATE__ completed
+            &lt;/p&gt;
             &lt;div style="margin-top: 10px;"&gt;
-                &lt;span&gt;Payroll of the month __PRESENTDATE__ completed&lt;/span&gt;
-            &lt;/div&gt;
-            &lt;div style="padding-bottom: 6px; margin-top: 2rem;"&gt;
-                __ALERT__
-            &lt;/div&gt;
-            &lt;div style="margin-top: 10px;"&gt;
-                &lt;span&gt;Status: &lt;span style="color: __STATUSCOLOR__;"&gt;&lt;b&gt;__STATUS__&lt;/b&gt;&lt;/span&gt;&lt;/span&gt;
+                &lt;span&gt;__BODY__&lt;/span&gt;
             &lt;/div&gt;
             &lt;h5 style="margin-bottom: 0;"&gt;Regards,&lt;/h5&gt;
             &lt;p&gt;

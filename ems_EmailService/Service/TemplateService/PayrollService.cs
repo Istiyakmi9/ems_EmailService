@@ -45,40 +45,13 @@ namespace EmailRequest.Service.TemplateService
             emailSenderModal.Subject = emailTemplate.SubjectLine.Replace("__PRESENTDATE__", DateTime.Now.ToString("MMMM"));
             emailSenderModal.To = payrollTemplateModel.ToAddress;
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
-            emailSenderModal.FileDetails = payrollTemplateModel.FileDetails;
 
             var html = ApplicationResource.Payroll;
-            string status = string.Empty;
-            string style = string.Empty;
-            StringBuilder builder = new StringBuilder();
-            if (payrollTemplateModel.missingDetail.Count == 0)
-            {
-                style = "green";
-            }
-            else if (payrollTemplateModel.missingDetail.Count <= 20)
-            {
-                style = "red";
-                status = "Partially successfull";
-                foreach (var detail in payrollTemplateModel.missingDetail)
-                {
-                    builder.Append("<div>" + detail + "</div>");
-                }
-            } else
-            {
-                style = "red";
-                status = "Many failed";
-                builder.Append("<div style=\"color: red;\"><b>Alert!!!</b>  " +
-                    "payroll cycle failed, more than 20 employee payroll cycle raise exception. " +
-                    "For detail please check the log files. Total failed count: " + missingDetail.Count + "</div>");
-            }
-
-            html = html.Replace("__STATUS__", status)
-                .Replace("__STATUSCOLOR__", style)
+            html = html.Replace("__BODY__", payrollTemplateModel.Body)
                 .Replace("__PRESENTDATE__", DateTime.Now.ToString("dd MMMM yyyy"))
                 .Replace("__COMPANYNAME__", emailTemplate.EmailClosingStatement)
                 .Replace("__MOBILENO__", emailTemplate.ContactNo)
-                .Replace("__EMAILNOTE__", emailTemplate.EmailNote)
-                .Replace("__ALERT__", builder.ToString());
+                .Replace("__EMAILNOTE__", emailTemplate.EmailNote);
 
             emailSenderModal.Body = html;
             _emailService.SendEmail(emailSenderModal);
