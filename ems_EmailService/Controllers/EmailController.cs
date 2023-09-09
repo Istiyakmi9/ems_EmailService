@@ -12,12 +12,12 @@ namespace EmailRequest.Controllers
         private readonly AttendanceRequested _attendanceTemplate;
         private readonly AutoLeaveMigrationTemplate _autoLeaveMigrationTemplate;
         private readonly AttendanceAction _attendanceApprovalTemplate;
-        private readonly ForgotPasswordTemplate _forgotPasswordTemplate;
+        private readonly ForgotPasswordRequested _forgotPasswordTemplate;
         private readonly LeaveApprovalTemplate _leaveApprovalTemplate;
         private readonly LeaveRequested _leaveRequestTemplate;
         private readonly NewRegistrationTemplate _newRegistrationTemplate1;
         private readonly OfferLetterTemplate _offerLetterTemplate;
-        private readonly PayrollTemplate _payrollTemplate;
+        private readonly PayrollService _payrollTemplate;
         private readonly TimesheetApprovalTemplate _timesheetApprovalTemplate;
         private readonly TimesheetTemplate _timesheetTemplate;
 
@@ -25,12 +25,12 @@ namespace EmailRequest.Controllers
             AttendanceRequested attendanceTemplate, 
             AutoLeaveMigrationTemplate autoLeaveMigrationTemplate, 
             AttendanceAction attendanceApprovalTemplate, 
-            ForgotPasswordTemplate forgotPasswordTemplate, 
+            ForgotPasswordRequested forgotPasswordTemplate, 
             LeaveApprovalTemplate leaveApprovalTemplate, 
             LeaveRequested leaveRequestTemplate, 
             NewRegistrationTemplate newRegistrationTemplate1, 
             OfferLetterTemplate offerLetterTemplate, 
-            PayrollTemplate payrollTemplate, 
+            PayrollService payrollTemplate, 
             TimesheetApprovalTemplate timesheetApprovalTemplate, 
             TimesheetTemplate timesheetTemplate)
         {
@@ -85,7 +85,7 @@ namespace EmailRequest.Controllers
         [HttpPost("Email/ForgotPasswordEmail")]
         public async Task ForgotPasswordEmail(ForgotPasswordTemplateModel forgotPasswordTemplateModel)
         {
-            _forgotPasswordTemplate.SetupEmailTemplate(forgotPasswordTemplateModel);
+            await _forgotPasswordTemplate.SetupEmailTemplate(forgotPasswordTemplateModel);
             await Task.CompletedTask;
         }
 
@@ -113,7 +113,7 @@ namespace EmailRequest.Controllers
         [HttpPost("Email/PayrollEmail")]
         public async Task PayrollEmail(PayrollTemplateModel payrollTemplateModel)
         {
-            _payrollTemplate.SetupEmailTemplate(payrollTemplateModel);
+            _payrollTemplate.SendEmailNotification(payrollTemplateModel);
             await Task.CompletedTask;
         }
 

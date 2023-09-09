@@ -119,6 +119,14 @@ namespace EmailRequest.Service
                     var leaveRequested = scope.ServiceProvider.GetRequiredService<LeaveRequested>();
                     leaveRequested.SetupEmailTemplate(leaveTemplateModel);
                     break;
+                case KafkaServiceName.Payroll:
+                    PayrollTemplateModel? payrollTemplateModel = JsonConvert.DeserializeObject<PayrollTemplateModel>(result.Message.Value);
+                    if (payrollTemplateModel == null)
+                        throw new Exception("[Kafka] Received invalid object for payroll template modal from producer.");
+
+                    var payrollService = scope.ServiceProvider.GetRequiredService<PayrollService>();
+                    payrollService?.SendEmailNotification(payrollTemplateModel);
+                    break;
             }
         }
     }

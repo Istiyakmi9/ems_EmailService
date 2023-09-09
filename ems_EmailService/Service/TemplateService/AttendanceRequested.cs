@@ -9,21 +9,15 @@ namespace EmailRequest.Service.TemplateService
     public class AttendanceRequested : IEmailServiceRequest
     {
         private readonly IDb _db;
-        private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IEmailService _emailService;
-        private readonly FileLocationDetail _fileLocationDetail;
         private readonly ILogger<AttendanceRequested> _logger;
 
         public AttendanceRequested(IDb db,
-            IWebHostEnvironment hostingEnvironment,
             IEmailService emailService,
-            FileLocationDetail fileLocationDetail,
             ILogger<AttendanceRequested> logger)
         {
             _db = db;
-            _hostingEnvironment = hostingEnvironment;
             _emailService = emailService;
-            _fileLocationDetail = fileLocationDetail;
             _logger = logger;
         }
 

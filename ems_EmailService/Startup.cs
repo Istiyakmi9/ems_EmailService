@@ -49,12 +49,12 @@ namespace EmailRequest
             services.AddScoped<AttendanceRequested>();
             services.AddScoped<AutoLeaveMigrationTemplate>();
             services.AddScoped<AttendanceAction>();
-            services.AddScoped<ForgotPasswordTemplate>();
+            services.AddScoped<ForgotPasswordRequested>();
             services.AddScoped<LeaveApprovalTemplate>();
             services.AddScoped<LeaveRequested>();
             services.AddScoped<NewRegistrationTemplate>();
             services.AddScoped<OfferLetterTemplate>();
-            services.AddScoped<PayrollTemplate>();
+            services.AddScoped<PayrollService>();
             services.AddScoped<TimesheetApprovalTemplate>();
             services.AddScoped<TimesheetTemplate>();
 
