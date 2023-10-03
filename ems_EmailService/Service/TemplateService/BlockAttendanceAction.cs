@@ -6,11 +6,11 @@ using ModalLayer.Modal;
 
 namespace EmailRequest.Service.TemplateService
 {
-    public class AttendanceAction : IEmailServiceRequest
+    public class BlockAttendanceAction: IEmailServiceRequest
     {
         private readonly IDb _db;
         private readonly IEmailService _emailService;
-        public AttendanceAction(IDb db, IEmailService emailService)
+        public BlockAttendanceAction(IDb db, IEmailService emailService)
         {
             _db = db;
             _emailService = emailService;
@@ -60,7 +60,7 @@ namespace EmailRequest.Service.TemplateService
             EmailTemplate emailTemplate = GetEmailTemplate();
             EmailSenderModal emailSenderModal = new EmailSenderModal();
             emailSenderModal.Title = emailTemplate.EmailTitle.Replace("__COMPANYNAME__", attendanceRequestModal.CompanyName);
-            emailSenderModal.Subject = emailTemplate.SubjectLine.Replace("__DATE__", attendanceRequestModal.FromDate.ToString("dd MMMM yyyy"))
+            emailSenderModal.Subject = emailTemplate.SubjectLine.Replace("__DATE__", "Block Attendance")
                 .Replace("__REQUESTTYPE__", attendanceRequestModal.RequestType)
                 .Replace("__DEVELOPERNAME__", attendanceRequestModal.DeveloperName);
             emailSenderModal.To = attendanceRequestModal.ToAddress;
@@ -85,15 +85,15 @@ namespace EmailRequest.Service.TemplateService
                 .Replace("__REVEIVERNAME__", string.Empty)
                 .Replace("__DEVELOPERNAME__", attendanceRequestModal.DeveloperName)
                 .Replace("__MANAGENAME__", attendanceRequestModal.ManagerName)
-                .Replace("__DATE__", attendanceRequestModal.FromDate.ToString("dddd, dd MMMM yyyy"))
-                .Replace("__NOOFDAYS__", attendanceRequestModal.DayCount.ToString())
+                .Replace("__DATE__", attendanceRequestModal.Body)
+                .Replace("[__NOOFDAYS__]", string.Empty)
                 .Replace("__STATUS__", attendanceRequestModal.ActionType)
                 .Replace("__ACTIONNAME__", $"{attendanceRequestModal.ActionType} By")
                 .Replace("__STATUSCOLOR__", statusColor)
                 .Replace("__MESSAGE__", emailTemplate.EmailNote ?? string.Empty)
                 .Replace("__MOBILENO__", emailTemplate.ContactNo)
                 .Replace("__COMPANYNAME__", attendanceRequestModal.CompanyName)
-                .Replace("__EMAILNOTE__", "Please write us back if you have any issue")
+                .Replace("__EMAILNOTE__", attendanceRequestModal.Note)
                 .Replace("__EMAILENCLOSINGSTATEMENT__", emailTemplate.SignatureDetail)
                 .Replace("__ENCLOSINGSTATEMENT__", emailTemplate.EmailClosingStatement);
 
