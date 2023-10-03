@@ -127,6 +127,25 @@ namespace EmailRequest.Service
                     var payrollService = scope.ServiceProvider.GetRequiredService<PayrollService>();
                     payrollService?.SendEmailNotification(payrollTemplateModel);
                     break;
+                case KafkaServiceName.BlockAttendance:
+                    AttendanceRequestModal? attendanceTemplate = JsonConvert.DeserializeObject<AttendanceRequestModal>(result.Message.Value);
+                    if (attendanceTemplate == null)
+                        throw new Exception("[Kafka] Received invalid object for attendance template modal from producer.");
+
+                    switch (attendanceTemplate.ActionType)
+                    {
+                        case AppConstants.Submitted:
+                            emailServiceRequest = scope.ServiceProvider.GetRequiredService<BlockAttendanceActionRequested>();
+                            break;
+                        case AppConstants.Approved:
+                        case AppConstants.Rejected:
+                            emailServiceRequest = scope.ServiceProvider.GetRequiredService<BlockAttendanceAction>();
+                            break;
+                    }
+
+                    _logger.LogInformation($"[Kafka] Starting sending request.");
+                    emailServiceRequest!.SendEmailNotification(attendanceTemplate);
+                    break;
             }
         }
     }
