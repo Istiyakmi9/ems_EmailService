@@ -146,6 +146,34 @@ namespace EmailRequest.Service
                     _logger.LogInformation($"[Kafka] Starting sending request.");
                     emailServiceRequest!.SendEmailNotification(attendanceTemplate);
                     break;
+                case KafkaServiceName.ForgotPassword:
+                    ForgotPasswordTemplateModel? forgotPasswordTemplateModel = JsonConvert.DeserializeObject<ForgotPasswordTemplateModel>(result.Message.Value);
+                    if (forgotPasswordTemplateModel == null)
+                        throw new Exception("[Kafka] Received invalid object for forgot password template modal from producer.");
+
+                    var forgotpasswordService = scope.ServiceProvider.GetRequiredService<ForgotPasswordRequested>();
+                    forgotpasswordService?.SendEmailNotification(forgotPasswordTemplateModel);
+                    break;
+                case KafkaServiceName.Timesheet:
+                    TimesheetApprovalTemplateModel? timesheetSubmittedTemplate = JsonConvert.DeserializeObject<TimesheetApprovalTemplateModel>(result.Message.Value);
+                    if (timesheetSubmittedTemplate == null)
+                        throw new Exception("[Kafka] Received invalid object for attendance template modal from producer.");
+                    switch (timesheetSubmittedTemplate.ActionType)
+                    {
+                        case AppConstants.Submitted:
+                            var timesheetRequestedService = scope.ServiceProvider.GetRequiredService<TimesheetRequested>();
+                            _logger.LogInformation($"[Kafka] Starting sending request.");
+                            timesheetRequestedService?.SendEmailNotification(timesheetSubmittedTemplate);
+                            break;
+                        case AppConstants.Approved:
+                        case AppConstants.Rejected:
+                            var timesheetActionService = scope.ServiceProvider.GetRequiredService<TimesheetAction>();
+                            _logger.LogInformation($"[Kafka] Starting sending request.");
+                            timesheetActionService?.SendEmailNotification(timesheetSubmittedTemplate);
+                            break;
+                    }
+
+                    break;
             }
         }
     }

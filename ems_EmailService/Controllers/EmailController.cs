@@ -18,21 +18,21 @@ namespace EmailRequest.Controllers
         private readonly NewRegistrationTemplate _newRegistrationTemplate1;
         private readonly OfferLetterTemplate _offerLetterTemplate;
         private readonly PayrollService _payrollTemplate;
-        private readonly TimesheetApprovalTemplate _timesheetApprovalTemplate;
-        private readonly TimesheetTemplate _timesheetTemplate;
+        private readonly TimesheetAction _timesheetApprovalTemplate;
+        private readonly TimesheetRequested _timesheetTemplate;
 
-        public EmailController(BillingService billingTemplate, 
-            AttendanceRequested attendanceTemplate, 
-            AutoLeaveMigrationTemplate autoLeaveMigrationTemplate, 
-            AttendanceAction attendanceApprovalTemplate, 
-            ForgotPasswordRequested forgotPasswordTemplate, 
-            LeaveApprovalTemplate leaveApprovalTemplate, 
-            LeaveRequested leaveRequestTemplate, 
-            NewRegistrationTemplate newRegistrationTemplate1, 
-            OfferLetterTemplate offerLetterTemplate, 
-            PayrollService payrollTemplate, 
-            TimesheetApprovalTemplate timesheetApprovalTemplate, 
-            TimesheetTemplate timesheetTemplate)
+        public EmailController(BillingService billingTemplate,
+            AttendanceRequested attendanceTemplate,
+            AutoLeaveMigrationTemplate autoLeaveMigrationTemplate,
+            AttendanceAction attendanceApprovalTemplate,
+            ForgotPasswordRequested forgotPasswordTemplate,
+            LeaveApprovalTemplate leaveApprovalTemplate,
+            LeaveRequested leaveRequestTemplate,
+            NewRegistrationTemplate newRegistrationTemplate1,
+            OfferLetterTemplate offerLetterTemplate,
+            PayrollService payrollTemplate,
+            TimesheetAction timesheetApprovalTemplate,
+            TimesheetRequested timesheetTemplate)
         {
             _billingTemplate = billingTemplate;
             _attendanceTemplate = attendanceTemplate;
@@ -78,14 +78,14 @@ namespace EmailRequest.Controllers
         [HttpPost("Email/AttendanceApprovalEmail")]
         public async Task AttendanceApprovalEmail(AttendanceRequestModal attendanceRequestModal)
         {
-            _attendanceApprovalTemplate.SendEmailNotification(attendanceRequestModal);
+            await _attendanceApprovalTemplate.SendEmailNotification(attendanceRequestModal);
             await Task.CompletedTask;
         }
 
         [HttpPost("Email/ForgotPasswordEmail")]
         public async Task ForgotPasswordEmail(ForgotPasswordTemplateModel forgotPasswordTemplateModel)
         {
-            await _forgotPasswordTemplate.SetupEmailTemplate(forgotPasswordTemplateModel);
+            await _forgotPasswordTemplate.SendEmailNotification(forgotPasswordTemplateModel);
             await Task.CompletedTask;
         }
 
@@ -120,14 +120,14 @@ namespace EmailRequest.Controllers
         [HttpPost("Email/TimesheetApprovalEmail")]
         public async Task TimesheetApprovalEmail(TimesheetApprovalTemplateModel timesheetApprovalTemplateModel)
         {
-            _timesheetApprovalTemplate.SetupEmailTemplate(timesheetApprovalTemplateModel);
+            await _timesheetApprovalTemplate.SendEmailNotification(timesheetApprovalTemplateModel);
             await Task.CompletedTask;
         }
 
         [HttpPost("Email/TimesheetEmail")]
-        public async Task TimesheetEmail(TimesheetSubmittedTemplateModel timesheetSubmittedTemplateModel)
+        public async Task TimesheetEmail(TimesheetApprovalTemplateModel timesheetApprovalTemplateModel)
         {
-            _timesheetTemplate.SetupEmailTemplate(timesheetSubmittedTemplateModel);
+            await _timesheetTemplate.SendEmailNotification(timesheetApprovalTemplateModel);
             await Task.CompletedTask;
         }
     }
