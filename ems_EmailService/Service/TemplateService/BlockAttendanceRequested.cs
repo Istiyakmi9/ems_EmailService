@@ -10,11 +10,11 @@ namespace EmailRequest.Service.TemplateService
     {
         private readonly IDb _db;
         private readonly IEmailService _emailService;
-        private readonly ILogger<AttendanceRequested> _logger;
+        private readonly ILogger<BlockAttendanceActionRequested> _logger;
 
         public BlockAttendanceActionRequested(IDb db,
             IEmailService emailService,
-            ILogger<AttendanceRequested> logger)
+            ILogger<BlockAttendanceActionRequested> logger)
         {
             _db = db;
             _emailService = emailService;
