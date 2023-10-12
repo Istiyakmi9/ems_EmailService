@@ -9,8 +9,8 @@ namespace EmailRequest.Service.TemplateService
     {
         private readonly IDb _db;
         private readonly IEmailService _emailService;
-        private readonly ILogger<AttendanceRequested> _logger;
-        public TimesheetRequested(IDb db, IEmailService emailService, ILogger<AttendanceRequested> logger)
+        private readonly ILogger<TimesheetRequested> _logger;
+        public TimesheetRequested(IDb db, IEmailService emailService, ILogger<TimesheetRequested> logger)
         {
             _db = db;
             _emailService = emailService;
