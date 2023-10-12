@@ -128,10 +128,12 @@ namespace EmailRequest.Service
                     payrollService?.SendEmailNotification(payrollTemplateModel);
                     break;
                 case KafkaServiceName.BlockAttendance:
+                    _logger.LogInformation($"[Kafka] Message received: Block attendance get");
                     AttendanceRequestModal? attendanceTemplate = JsonConvert.DeserializeObject<AttendanceRequestModal>(result.Message.Value);
                     if (attendanceTemplate == null)
                         throw new Exception("[Kafka] Received invalid object for attendance template modal from producer.");
 
+                    _logger.LogInformation($"[Kafka] Message received: {attendanceTemplate.ActionType}");
                     switch (attendanceTemplate.ActionType)
                     {
                         case AppConstants.Submitted:
@@ -147,6 +149,7 @@ namespace EmailRequest.Service
                     emailServiceRequest!.SendEmailNotification(attendanceTemplate);
                     break;
                 case KafkaServiceName.ForgotPassword:
+                    _logger.LogInformation($"[Kafka] Message received: Forgot password get");
                     ForgotPasswordTemplateModel? forgotPasswordTemplateModel = JsonConvert.DeserializeObject<ForgotPasswordTemplateModel>(result.Message.Value);
                     if (forgotPasswordTemplateModel == null)
                         throw new Exception("[Kafka] Received invalid object for forgot password template modal from producer.");
@@ -155,9 +158,12 @@ namespace EmailRequest.Service
                     forgotpasswordService?.SendEmailNotification(forgotPasswordTemplateModel);
                     break;
                 case KafkaServiceName.Timesheet:
+                    _logger.LogInformation($"[Kafka] Message received: Timesheet get");
                     TimesheetApprovalTemplateModel? timesheetSubmittedTemplate = JsonConvert.DeserializeObject<TimesheetApprovalTemplateModel>(result.Message.Value);
                     if (timesheetSubmittedTemplate == null)
                         throw new Exception("[Kafka] Received invalid object for attendance template modal from producer.");
+
+                    _logger.LogInformation($"[Kafka] Message received: {timesheetSubmittedTemplate.ActionType}");
                     switch (timesheetSubmittedTemplate.ActionType)
                     {
                         case AppConstants.Submitted:
