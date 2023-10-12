@@ -57,6 +57,9 @@ namespace EmailRequest
             services.AddScoped<PayrollService>();
             services.AddScoped<TimesheetAction>();
             services.AddScoped<TimesheetRequested>();
+            services.AddScoped<BlockAttendanceActionRequested>();
+            services.AddScoped<BlockAttendanceAction>();
+
 
             services.AddSingleton<FileLocationDetail>(service =>
             {
