@@ -3,6 +3,7 @@ using BottomhalfCore.DatabaseLayer.Common.Code;
 using BottomhalfCore.DatabaseLayer.MySql.Code;
 using EmailRequest.EMailService.Interface;
 using EmailRequest.EMailService.Service;
+using EmailRequest.MiddelwareHandler;
 using EmailRequest.Service;
 using EmailRequest.Service.TemplateService;
 using EmalRequest.Service;
@@ -106,6 +107,9 @@ namespace EmailRequest
             });
             app.UseRouting();
             app.UseAuthorization();
+
+            app.UseRequestHandler();
+
             app.MapControllers();
             app.Run();
         }
