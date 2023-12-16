@@ -3,13 +3,11 @@ using BottomhalfCore.DatabaseLayer.Common.Code;
 using BottomhalfCore.DatabaseLayer.MySql.Code;
 using EmailRequest.EMailService.Interface;
 using EmailRequest.EMailService.Service;
-using EmailRequest.MiddelwareHandler;
 using EmailRequest.Service;
 using EmailRequest.Service.TemplateService;
 using EmalRequest.Service;
 using Microsoft.Extensions.FileProviders;
 using ModalLayer;
-using ModalLayer.Modal;
 
 namespace EmailRequest
 {
@@ -106,11 +104,8 @@ namespace EmailRequest
                 RequestPath = "/Files"
             });
 
-            app.UseRequestHandler();
             app.UseRouting();
             app.UseAuthorization();
-
-
             app.MapControllers();
             app.Run();
         }

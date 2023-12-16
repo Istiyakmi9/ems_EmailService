@@ -48,12 +48,19 @@ namespace EmailRequest.Service.TemplateService
 
         private EmailTemplate GetEmailTemplate()
         {
-            EmailTemplate emailTemplate = _db.Get<EmailTemplate>("sp_email_template_get", new { EmailTemplateId = (int)TemplateEnum.AttendanceApproval });
+            try
+            {
+                EmailTemplate emailTemplate = _db.Get<EmailTemplate>("sp_email_template_get", new { EmailTemplateId = (int)TemplateEnum.AttendanceApproval });
 
-            if (emailTemplate == null)
-                throw new HiringBellException("Email template not found. Please contact to admin.");
+                if (emailTemplate == null)
+                    throw new HiringBellException("Email template not found. Please contact to admin.");
 
-            return emailTemplate;
+                return emailTemplate;
+            }
+            catch (Exception ex)
+            {
+                throw new HiringBellException($"[Kafka Error]: Error {ex.Message}");
+            }
         }
 
         public async Task SendEmailNotification(AttendanceRequestModal attendanceRequestModal)
