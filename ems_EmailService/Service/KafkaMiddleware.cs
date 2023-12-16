@@ -59,11 +59,17 @@ namespace EmailRequest.Service
                     consumer.Subscribe(KafkaServiceConfig.AttendanceEmailTopic);
                     while (true)
                     {
-                        _logger.LogInformation($"[Kafka] Waiting on topic: {KafkaServiceConfig.AttendanceEmailTopic}");
-                        var message = consumer.Consume();
+                        try
+                        {
+                            _logger.LogInformation($"[Kafka] Waiting on topic: {KafkaServiceConfig.AttendanceEmailTopic}");
+                            var message = consumer.Consume();
 
-                        HandleMessageSendEmail(message, scope);
-                        // consumer.Commit();
+                            HandleMessageSendEmail(message, scope);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError($"[Kafka Error]: Got exception - {ex.Message}");
+                        }
                     }
                 }
             }
@@ -101,7 +107,7 @@ namespace EmailRequest.Service
                     }
 
                     _logger.LogInformation($"[Kafka] Starting sending request.");
-                    emailServiceRequest!.SendEmailNotification(attendanceTemplateModel);
+                    emailServiceRequest.SendEmailNotification(attendanceTemplateModel);
                     break;
                 case KafkaServiceName.Billing:
                     BillingTemplateModel? billingTemplateModel = JsonConvert.DeserializeObject<BillingTemplateModel>(result.Message.Value);

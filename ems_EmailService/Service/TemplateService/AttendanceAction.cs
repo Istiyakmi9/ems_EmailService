@@ -10,10 +10,13 @@ namespace EmailRequest.Service.TemplateService
     {
         private readonly IDb _db;
         private readonly IEmailService _emailService;
-        public AttendanceAction(IDb db, IEmailService emailService)
+        private readonly ILogger<AttendanceAction> _logger;
+
+        public AttendanceAction(IDb db, IEmailService emailService, ILogger<AttendanceAction> logger)
         {
             _db = db;
             _emailService = emailService;
+            _logger = logger;
         }
 
         private void ValidateModal(AttendanceRequestModal attendanceRequestModal)
@@ -55,6 +58,7 @@ namespace EmailRequest.Service.TemplateService
 
         public async Task SendEmailNotification(AttendanceRequestModal attendanceRequestModal)
         {
+            _logger.LogInformation($"[Kafka]: Validating request object");
             // validate request modal
             ValidateModal(attendanceRequestModal);
             EmailTemplate emailTemplate = GetEmailTemplate();
@@ -80,6 +84,7 @@ namespace EmailRequest.Service.TemplateService
                     break;
             }
 
+            _logger.LogInformation($"[Kafka]: Preparing the email html content");
             var html = ApplicationResource.AttendanceApplied;
             html = html.Replace("__REQUESTTYPE__", attendanceRequestModal!.RequestType)
                 .Replace("__REVEIVERNAME__", string.Empty)
@@ -99,6 +104,7 @@ namespace EmailRequest.Service.TemplateService
 
             emailSenderModal.Body = html;
 
+            _logger.LogInformation($"[Kafka]: Sending content for email");
             await Task.Run(() => _emailService.SendEmail(emailSenderModal));
         }
     }
