@@ -105,10 +105,11 @@ namespace EmailRequest
                    Path.Combine(Directory.GetCurrentDirectory())),
                 RequestPath = "/Files"
             });
+
+            app.UseRequestHandler();
             app.UseRouting();
             app.UseAuthorization();
 
-            app.UseRequestHandler();
 
             app.MapControllers();
             app.Run();
