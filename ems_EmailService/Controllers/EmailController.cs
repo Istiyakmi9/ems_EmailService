@@ -64,8 +64,7 @@ namespace EmailRequest.Controllers
         [HttpPost("Email/AttendanceEmail")]
         public async Task AttendanceEmail(AttendanceRequestModal attendanceTemplateModel)
         {
-            _attendanceTemplate.SendEmailNotification(attendanceTemplateModel);
-            await Task.CompletedTask;
+            await _attendanceTemplate.SendEmailNotification(attendanceTemplateModel);
         }
 
         [HttpPost("Email/AutoLeaveMigrationEmail")]
@@ -79,14 +78,12 @@ namespace EmailRequest.Controllers
         public async Task AttendanceApprovalEmail(AttendanceRequestModal attendanceRequestModal)
         {
             await _attendanceApprovalTemplate.SendEmailNotification(attendanceRequestModal);
-            await Task.CompletedTask;
         }
 
         [HttpPost("Email/ForgotPasswordEmail")]
         public async Task ForgotPasswordEmail(ForgotPasswordTemplateModel forgotPasswordTemplateModel)
         {
             await _forgotPasswordTemplate.SendEmailNotification(forgotPasswordTemplateModel);
-            await Task.CompletedTask;
         }
 
         [HttpPost("Email/LeaveApprovalEmail")]
@@ -121,14 +118,12 @@ namespace EmailRequest.Controllers
         public async Task TimesheetApprovalEmail(TimesheetApprovalTemplateModel timesheetApprovalTemplateModel)
         {
             await _timesheetApprovalTemplate.SendEmailNotification(timesheetApprovalTemplateModel);
-            await Task.CompletedTask;
         }
 
         [HttpPost("Email/TimesheetEmail")]
         public async Task TimesheetEmail(TimesheetApprovalTemplateModel timesheetApprovalTemplateModel)
         {
             await _timesheetTemplate.SendEmailNotification(timesheetApprovalTemplateModel);
-            await Task.CompletedTask;
         }
     }
 }

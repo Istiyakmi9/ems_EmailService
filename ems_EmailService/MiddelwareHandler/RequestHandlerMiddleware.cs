@@ -16,10 +16,12 @@ namespace EmailRequest.MiddelwareHandler
     public class RequestHandlerMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<RequestHandlerMiddleware> _logger;
 
-        public RequestHandlerMiddleware(RequestDelegate next)
+        public RequestHandlerMiddleware(RequestDelegate next, ILogger<RequestHandlerMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task Invoke(HttpContext context, IDb db)
@@ -40,6 +42,7 @@ namespace EmailRequest.MiddelwareHandler
                             }
 
                             var cs = @$"server={dbConfig.Server};port={dbConfig.Port};database={dbConfig.Database};User Id={dbConfig.UserId};password={dbConfig.Password};Connection Timeout={dbConfig.ConnectionTimeout};Connection Lifetime={dbConfig.ConnectionLifetime};Min Pool Size={dbConfig.MinPoolSize};Max Pool Size={dbConfig.MaxPoolSize};Pooling={dbConfig.Pooling};";
+                            _logger.LogInformation($"[Middelware]: Connection string found. CS: {cs}");
                             db.SetupConnectionString(cs);
                         }
                     }
@@ -48,12 +51,14 @@ namespace EmailRequest.MiddelwareHandler
 
                 await _next(context);
             }
-            catch (HiringBellException)
+            catch (HiringBellException e)
             {
+                _logger.LogInformation($"[Middelware error]: {e.Message}");
                 throw;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogInformation($"[Middelware error]: {ex.Message}");
                 throw;
             }
         }
