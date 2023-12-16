@@ -16,7 +16,7 @@ namespace EmailRequest.MiddelwareHandler
     public class RequestHandlerMiddleware
     {
         private readonly RequestDelegate _next;
-        
+
         public RequestHandlerMiddleware(RequestDelegate next)
         {
             _next = next;
@@ -34,17 +34,17 @@ namespace EmailRequest.MiddelwareHandler
                         if (header.Key == "database")
                         {
                             dbConfig = JsonConvert.DeserializeObject<DbConfigModal>(header.Value);
+                            if (string.IsNullOrEmpty(dbConfig.Server))
+                            {
+                                throw new Exception("Unable to get database server detail. Please contact to admin.");
+                            }
+
+                            var cs = @$"server={dbConfig.Server};port={dbConfig.Port};database={dbConfig.Database};User Id={dbConfig.UserId};password={dbConfig.Password};Connection Timeout={dbConfig.ConnectionTimeout};Connection Lifetime={dbConfig.ConnectionLifetime};Min Pool Size={dbConfig.MinPoolSize};Max Pool Size={dbConfig.MaxPoolSize};Pooling={dbConfig.Pooling};";
+                            db.SetupConnectionString(cs);
                         }
                     }
                 });
 
-                if (string.IsNullOrEmpty(dbConfig.Server))
-                {
-                    throw new Exception("Unable to get database server detail. Please contact to admin.");
-                }
-
-                var cs = @$"server={dbConfig.Server};port={dbConfig.Port};database={dbConfig.Database};User Id={dbConfig.UserId};password={dbConfig.Password};Connection Timeout={dbConfig.ConnectionTimeout};Connection Lifetime={dbConfig.ConnectionLifetime};Min Pool Size={dbConfig.MinPoolSize};Max Pool Size={dbConfig.MaxPoolSize};Pooling={dbConfig.Pooling};";
-                db.SetupConnectionString(cs);
 
                 await _next(context);
             }
