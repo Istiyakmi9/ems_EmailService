@@ -127,6 +127,59 @@ namespace EmailRequest.Service
                     var payrollService = scope.ServiceProvider.GetRequiredService<PayrollService>();
                     payrollService?.SendEmailNotification(payrollTemplateModel);
                     break;
+                case KafkaServiceName.BlockAttendance:
+                    _logger.LogInformation($"[Kafka] Message received: Block attendance get");
+                    AttendanceRequestModal? attendanceTemplate = JsonConvert.DeserializeObject<AttendanceRequestModal>(result.Message.Value);
+                    if (attendanceTemplate == null)
+                        throw new Exception("[Kafka] Received invalid object for attendance template modal from producer.");
+
+                    _logger.LogInformation($"[Kafka] Message received: {attendanceTemplate.ActionType}");
+                    switch (attendanceTemplate.ActionType)
+                    {
+                        case AppConstants.Submitted:
+                            emailServiceRequest = scope.ServiceProvider.GetRequiredService<BlockAttendanceActionRequested>();
+                            break;
+                        case AppConstants.Approved:
+                        case AppConstants.Rejected:
+                            emailServiceRequest = scope.ServiceProvider.GetRequiredService<BlockAttendanceAction>();
+                            break;
+                    }
+
+                    _logger.LogInformation($"[Kafka] Starting sending request.");
+                    emailServiceRequest!.SendEmailNotification(attendanceTemplate);
+                    break;
+                case KafkaServiceName.ForgotPassword:
+                    _logger.LogInformation($"[Kafka] Message received: Forgot password get");
+                    ForgotPasswordTemplateModel? forgotPasswordTemplateModel = JsonConvert.DeserializeObject<ForgotPasswordTemplateModel>(result.Message.Value);
+                    if (forgotPasswordTemplateModel == null)
+                        throw new Exception("[Kafka] Received invalid object for forgot password template modal from producer.");
+
+                    var forgotpasswordService = scope.ServiceProvider.GetRequiredService<ForgotPasswordRequested>();
+                    forgotpasswordService?.SendEmailNotification(forgotPasswordTemplateModel);
+                    break;
+                case KafkaServiceName.Timesheet:
+                    _logger.LogInformation($"[Kafka] Message received: Timesheet get");
+                    TimesheetApprovalTemplateModel? timesheetSubmittedTemplate = JsonConvert.DeserializeObject<TimesheetApprovalTemplateModel>(result.Message.Value);
+                    if (timesheetSubmittedTemplate == null)
+                        throw new Exception("[Kafka] Received invalid object for attendance template modal from producer.");
+
+                    _logger.LogInformation($"[Kafka] Message received: {timesheetSubmittedTemplate.ActionType}");
+                    switch (timesheetSubmittedTemplate.ActionType)
+                    {
+                        case AppConstants.Submitted:
+                            var timesheetRequestedService = scope.ServiceProvider.GetRequiredService<TimesheetRequested>();
+                            _logger.LogInformation($"[Kafka] Starting sending request.");
+                            timesheetRequestedService?.SendEmailNotification(timesheetSubmittedTemplate);
+                            break;
+                        case AppConstants.Approved:
+                        case AppConstants.Rejected:
+                            var timesheetActionService = scope.ServiceProvider.GetRequiredService<TimesheetAction>();
+                            _logger.LogInformation($"[Kafka] Starting sending request.");
+                            timesheetActionService?.SendEmailNotification(timesheetSubmittedTemplate);
+                            break;
+                    }
+
+                    break;
             }
         }
     }
