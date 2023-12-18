@@ -76,9 +76,12 @@ namespace EmailRequest.Service.TemplateService
 
             string filePath = string.Empty;
             if (file.FileName.Contains("."))
-                filePath = Path.Combine(_fileLocationDetail.RootPath, file.FilePath, file.FileName);
+                filePath = $"{AppConstants.BaseImageUrl}{file.FilePath}/{file.FileName}";
             else
-                filePath = $"https://www.emstum.com/bot/dn/Files/{file.FilePath}/{file.FileName}.+{file.FileExtension}";
+                filePath = $"{AppConstants.BaseImageUrl}{file.FilePath}/{file.FileName}.+{file.FileExtension}";
+
+            if (filePath.Contains("\\"))
+                filePath = filePath.Replace("\\", "/");
 
             return filePath;
         }
