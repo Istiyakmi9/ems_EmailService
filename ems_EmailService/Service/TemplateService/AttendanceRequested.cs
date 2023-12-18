@@ -1,6 +1,7 @@
 ﻿using Bot.CoreBottomHalf.CommonModal;
 using BottomhalfCore.DatabaseLayer.Common.Code;
 using CoreBottomHalf.CommonModal.HtmlTemplateModel;
+using EmailRequest.Modal;
 using EmailRequest.Service.Interface;
 using ModalLayer.Modal;
 
@@ -11,14 +12,16 @@ namespace EmailRequest.Service.TemplateService
         private readonly IDb _db;
         private readonly IEmailService _emailService;
         private readonly ILogger<AttendanceRequested> _logger;
-
+        private readonly FileLocationDetail _fileLocationDetail;
         public AttendanceRequested(IDb db,
             IEmailService emailService,
-            ILogger<AttendanceRequested> logger)
+            ILogger<AttendanceRequested> logger,
+            FileLocationDetail fileLocationDetail)
         {
             _db = db;
             _emailService = emailService;
             _logger = logger;
+            _fileLocationDetail = fileLocationDetail;
         }
 
         private void ValidateModal(AttendanceRequestModal attendanceTemplateModel)
@@ -38,13 +41,14 @@ namespace EmailRequest.Service.TemplateService
             if (attendanceTemplateModel.DayCount < 0)
                 throw new HiringBellException("Days count is missing.");
 
-            if (attendanceTemplateModel?.FromDate == null)
+            if (attendanceTemplateModel.FromDate == null)
                 throw new HiringBellException("Date is missing.");
         }
 
         private EmailTemplate GetEmailTemplate()
         {
             _logger.LogInformation($"[1. Kafka] Trying to read email template from database.");
+            _db.SetupConnectionString("server=192.168.0.101;port=3308;database=bottomhalf;User Id=root;password=live@Bottomhalf_001;Connection Timeout=30;Connection Lifetime=0;Min Pool Size=0;Max Pool Size=100;Pooling=true;");
             EmailTemplate emailTemplate = _db.Get<EmailTemplate>("sp_email_template_get", new { EmailTemplateId = (int)TemplateEnum.Attendance });
 
             if (emailTemplate == null)
@@ -56,12 +60,36 @@ namespace EmailRequest.Service.TemplateService
             return emailTemplate;
         }
 
+        private string GetCompanyLogo()
+        {
+            _logger.LogInformation($"[Kafka] Trying to read company logo.");
+            Files file = _db.Get<Files>("sp_company_primary_logo_get_byid", new {
+                CompanyId = 1,
+                FileRole = ApplicationConstants.CompanyPrimaryLogo
+            });
+
+            if (file == null)
+            {
+                _logger.LogError($"[Kafka] Company primary logo not found.");
+                throw new HiringBellException(" Company primary logo not found. Please contact to admin.");
+            }
+
+            string filePath = string.Empty;
+            if (file.FileName.Contains("."))
+                filePath = Path.Combine(_fileLocationDetail.RootPath, file.FilePath, file.FileName);
+            else
+                filePath = $"https://www.emstum.com/bot/dn/Files/{file.FilePath}/{file.FileName}.+{file.FileExtension}";
+
+            return filePath;
+        }
+
         public async Task SendEmailNotification(AttendanceRequestModal attendanceTemplateModel)
         {
             try
             {
                 ValidateModal(attendanceTemplateModel);
                 EmailTemplate emailTemplate = GetEmailTemplate();
+                var logoPath = GetCompanyLogo();
                 EmailSenderModal emailSenderModal = new EmailSenderModal();
                 emailSenderModal.Title = emailTemplate.EmailTitle.Replace("__COMPANYNAME__", attendanceTemplateModel.CompanyName);
                 emailSenderModal.Subject = emailTemplate.SubjectLine.Replace("__DATE__", attendanceTemplateModel?.FromDate.ToString("dd MMMM yyyy"))
@@ -73,7 +101,7 @@ namespace EmailRequest.Service.TemplateService
                 var html = ApplicationResource.AttendanceApplied;
 
                 string statusColor = string.Empty;
-                switch (attendanceTemplateModel?.ActionType?.ToLower())
+                switch (attendanceTemplateModel.ActionType.ToLower())
                 {
                     case ApplicationConstants.Submitted:
                         statusColor = "#0D6EFD";
@@ -86,11 +114,11 @@ namespace EmailRequest.Service.TemplateService
                         break;
                 }
 
-                html = html.Replace("__REQUESTTYPE__", attendanceTemplateModel!.RequestType)
+                html = html.Replace("__REQUESTTYPE__", attendanceTemplateModel.RequestType)
                     .Replace("__REVEIVERNAME__", attendanceTemplateModel.ManagerName)
                     .Replace("__DEVELOPERNAME__", attendanceTemplateModel.DeveloperName)
-                    .Replace("__DATE__", attendanceTemplateModel?.FromDate.ToString("dddd, dd MMMM yyyy"))
-                    .Replace("__NOOFDAYS__", attendanceTemplateModel!.DayCount.ToString())
+                    .Replace("__DATE__", attendanceTemplateModel.FromDate.ToString("dddd, dd MMMM yyyy"))
+                    .Replace("__NOOFDAYS__", attendanceTemplateModel.DayCount.ToString())
                     .Replace("__STATUS__", attendanceTemplateModel.ActionType)
                     .Replace("__ACTIONNAME__", "Manager Name")
                     .Replace("__STATUSCOLOR__", statusColor)
@@ -99,6 +127,7 @@ namespace EmailRequest.Service.TemplateService
                     .Replace("__COMPANYNAME__", emailTemplate.SignatureDetail)
                     .Replace("__EMAILNOTE__", "Please write us back if you have any issue")
                     .Replace("__MANAGENAME__", attendanceTemplateModel.ManagerName)
+                    .Replace("__COMPANYLOGO__", logoPath)
                     .Replace("__ENCLOSINGSTATEMENT__", emailTemplate.EmailClosingStatement);
 
                 emailSenderModal.Body = html;
