@@ -60,19 +60,18 @@ namespace EmailRequest.Service.TemplateService
             return emailTemplate;
         }
 
-        private string GetCompanyLogo()
+        private string GetCompanyLogo(int companyId)
         {
-            _logger.LogInformation($"[Kafka] Trying to read company logo.");
+            if (companyId <= 0)
+                throw HiringBellException.ThrowBadRequest("Invalid company id");
+
             Files file = _db.Get<Files>("sp_company_primary_logo_get_byid", new {
-                CompanyId = 1,
+                CompanyId = companyId,
                 FileRole = ApplicationConstants.CompanyPrimaryLogo
             });
 
             if (file == null)
-            {
-                _logger.LogError($"[Kafka] Company primary logo not found.");
                 throw new HiringBellException(" Company primary logo not found. Please contact to admin.");
-            }
 
             string filePath = string.Empty;
             if (file.FileName.Contains("."))
@@ -80,12 +79,8 @@ namespace EmailRequest.Service.TemplateService
             else
                 filePath = $"{AppConstants.BaseImageUrl}{file.FilePath}/{file.FileName}.+{file.FileExtension}";
 
-            _logger.LogInformation($"Orignal File path: {filePath}");
-
             if (filePath.Contains("\\"))
                 filePath = filePath.Replace("\\", "/");
-
-            _logger.LogInformation($"Replaced File path: {filePath}");
 
             return filePath;
         }
@@ -96,11 +91,10 @@ namespace EmailRequest.Service.TemplateService
             {
                 ValidateModal(attendanceTemplateModel);
                 EmailTemplate emailTemplate = GetEmailTemplate();
-                var logoPath = GetCompanyLogo();
+                var logoPath = GetCompanyLogo(attendanceTemplateModel.CompanyId);
                 if (string.IsNullOrEmpty(logoPath))
                     throw HiringBellException.ThrowBadRequest("Logo path not found");
 
-                _logger.LogInformation($"[Company Logo Path]: {logoPath}");
                 EmailSenderModal emailSenderModal = new EmailSenderModal();
                 emailSenderModal.Title = emailTemplate.EmailTitle.Replace("__COMPANYNAME__", attendanceTemplateModel.CompanyName);
                 emailSenderModal.Subject = emailTemplate.SubjectLine.Replace("__DATE__", attendanceTemplateModel?.FromDate.ToString("dd MMMM yyyy"))
@@ -143,7 +137,6 @@ namespace EmailRequest.Service.TemplateService
 
                 emailSenderModal.Body = html;
 
-                _logger.LogInformation($"[Email Body]: {emailSenderModal.Body}");
                 _logger.LogInformation($"[5. Kafka] Template converted.");
                 await Task.Run(() => _emailService.SendEmail(emailSenderModal));
             }
