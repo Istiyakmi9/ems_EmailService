@@ -1,6 +1,7 @@
 ﻿using Bot.CoreBottomHalf.CommonModal;
 using BottomhalfCore.DatabaseLayer.Common.Code;
 using CoreBottomHalf.CommonModal.HtmlTemplateModel;
+using EmailRequest.Modal;
 using ModalLayer.Modal;
 
 namespace EmailRequest.Service.TemplateService
@@ -45,6 +46,32 @@ namespace EmailRequest.Service.TemplateService
             return emailTemplate;
         }
 
+        private string GetCompanyLogo(int companyId)
+        {
+            if (companyId <= 0)
+                throw HiringBellException.ThrowBadRequest("Invalid company id");
+
+            Files file = _db.Get<Files>("sp_company_primary_logo_get_byid", new
+            {
+                CompanyId = companyId,
+                FileRole = ApplicationConstants.CompanyPrimaryLogo
+            });
+
+            if (file == null)
+                throw new HiringBellException(" Company primary logo not found. Please contact to admin.");
+
+            string filePath = string.Empty;
+            if (file.FileName.Contains("."))
+                filePath = $"{AppConstants.BaseImageUrl}{file.FilePath}/{file.FileName}";
+            else
+                filePath = $"{AppConstants.BaseImageUrl}{file.FilePath}/{file.FileName}.+{file.FileExtension}";
+
+            if (filePath.Contains("\\"))
+                filePath = filePath.Replace("\\", "/");
+
+            return filePath;
+        }
+
         public async Task SendEmailNotification(ForgotPasswordTemplateModel forgotPasswordTemplateModel)
         {
             try
@@ -52,6 +79,10 @@ namespace EmailRequest.Service.TemplateService
                 // validate request modal
                 ValidateModal(forgotPasswordTemplateModel);
                 EmailTemplate emailTemplate = GetEmailTemplate();
+                var logoPath = GetCompanyLogo(forgotPasswordTemplateModel.CompanyId);
+                if (string.IsNullOrEmpty(logoPath))
+                    throw HiringBellException.ThrowBadRequest("Logo path not found");
+
                 EmailSenderModal emailSenderModal = new EmailSenderModal();
                 emailSenderModal.Title = emailTemplate.EmailTitle.Replace("__COMPANYNAME__", forgotPasswordTemplateModel.CompanyName);
                 emailSenderModal.Subject = emailTemplate.SubjectLine;
@@ -62,6 +93,7 @@ namespace EmailRequest.Service.TemplateService
                 html = html.Replace("__TEMPPASSWORD__", forgotPasswordTemplateModel.NewPassword)
                     .Replace("__COMPANYNAME__", forgotPasswordTemplateModel.CompanyName)
                     .Replace("__MOBILENO__", emailTemplate.ContactNo)
+                    .Replace("__COMPANYLOGO__", logoPath)
                     .Replace("__ENCLOSINGSTATEMENT__", emailTemplate.EmailClosingStatement);
 
                 emailSenderModal.Body = html;
