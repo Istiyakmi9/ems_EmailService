@@ -5,8 +5,6 @@ using EmailRequest.Service;
 using ModalLayer.Modal;
 using System.Net;
 using System.Net.Mail;
-using System.Net.Mime;
-using System.Text;
 
 namespace EmalRequest.Service
 {
