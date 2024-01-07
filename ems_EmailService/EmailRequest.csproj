@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Documents\" />
+    <Folder Include="ApplicationFiles\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,19 +43,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Documents\htmltemplates\billing\payslipTemplate.html">
+    <None Update="ApplicationFiles\htmltemplates\billing\payslipTemplate.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Documents\htmltemplates\billing\staffingBill.html">
+    <None Update="ApplicationFiles\htmltemplates\billing\staffingBill.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Documents\htmltemplates\billing\staffingBillPdfFormat.html">
+    <None Update="ApplicationFiles\htmltemplates\billing\staffingBillPdfFormat.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Documents\htmltemplates\emailtemplate.html">
+    <None Update="ApplicationFiles\htmltemplates\emailtemplate.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Documents\logos\hb-logo-low.png">
+    <None Update="ApplicationFiles\logos\hb-logo-low.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
