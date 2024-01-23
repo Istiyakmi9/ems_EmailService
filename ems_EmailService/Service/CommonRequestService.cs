@@ -40,6 +40,7 @@ namespace EmailRequest.Service
 
             return filePath;
         }
+
         public async Task SendEmailNotification(CommonFields commonFields)
         {
             // validate request modal
