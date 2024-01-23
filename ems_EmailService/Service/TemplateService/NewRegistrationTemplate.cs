@@ -25,7 +25,7 @@ namespace EmailRequest.Service.TemplateService
             if (string.IsNullOrEmpty(newRegistrationTemplate.DeveloperName))
                 throw new HiringBellException("Developer name is missing.");
 
-            if (newRegistrationTemplate.FromDate == null)
+            if (newRegistrationTemplate?.FromDate == null)
                 throw new HiringBellException("Date is missing.");
         }
 

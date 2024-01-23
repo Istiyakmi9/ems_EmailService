@@ -16,7 +16,7 @@ namespace EmailRequest.EMailService.Service
             _emailService = emailService;
         }
 
-        private List<InboxMailDetail> ReadPOP3Email(EmailSettingDetail? emailSettingDetail)
+        private List<InboxMailDetail> ReadPOP3Email(EmailSettingDetail emailSettingDetail)
         {
             List<InboxMailDetail> inboxMailDetails = new List<InboxMailDetail>();
 

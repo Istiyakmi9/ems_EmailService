@@ -34,10 +34,10 @@ namespace EmailRequest.Service.TemplateService
             if (offerLetterTemplateModel.DayCount < 0)
                 throw new HiringBellException("Days count is missing.");
 
-            if (offerLetterTemplateModel.FromDate == null)
+            if (offerLetterTemplateModel?.FromDate == null)
                 throw new HiringBellException("Date is missing.");
 
-            if (offerLetterTemplateModel.ToDate == null)
+            if (offerLetterTemplateModel?.ToDate == null)
                 throw new HiringBellException("Date is missing.");
         }
 

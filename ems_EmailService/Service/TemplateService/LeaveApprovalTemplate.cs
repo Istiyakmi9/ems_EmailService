@@ -34,10 +34,10 @@ namespace EmailRequest.Service.TemplateService
             if (leaveApprovalTemplateModel.DayCount < 0)
                 throw new HiringBellException("Days count is missing.");
 
-            if (leaveApprovalTemplateModel.FromDate == null)
+            if (leaveApprovalTemplateModel?.FromDate == null)
                 throw new HiringBellException("Date is missing.");
 
-            if (leaveApprovalTemplateModel.ToDate == null)
+            if (leaveApprovalTemplateModel?.ToDate == null)
                 throw new HiringBellException("Date is missing.");
 
             if (string.IsNullOrEmpty(leaveApprovalTemplateModel.ManagerName))

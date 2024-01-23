@@ -3,6 +3,7 @@ using BottomhalfCore.DatabaseLayer.Common.Code;
 using CoreBottomHalf.CommonModal.HtmlTemplateModel;
 using EmailRequest.Modal;
 using ModalLayer.Modal;
+using System.Globalization;
 
 namespace EmailRequest.Service.TemplateService
 {
@@ -33,10 +34,10 @@ namespace EmailRequest.Service.TemplateService
             if (timesheetApprovalTemplateModel.DayCount < 0)
                 throw new HiringBellException("Days count is missing.");
 
-            if (timesheetApprovalTemplateModel.FromDate == null)
+            if (timesheetApprovalTemplateModel?.FromDate == null)
                 throw new HiringBellException("Date is missing.");
 
-            if (timesheetApprovalTemplateModel.ToDate == null)
+            if (timesheetApprovalTemplateModel?.ToDate == null)
                 throw new HiringBellException("Date is missing.");
 
             if (string.IsNullOrEmpty(timesheetApprovalTemplateModel.ManagerName))
@@ -97,7 +98,8 @@ namespace EmailRequest.Service.TemplateService
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
 
             string statusColor = string.Empty;
-            switch (timesheetApprovalTemplateModel!.ActionType?.ToLower())
+            var textinfo = CultureInfo.CurrentCulture.TextInfo;
+            switch (textinfo.ToTitleCase(timesheetApprovalTemplateModel.ActionType))
             {
                 case ApplicationConstants.Submitted:
                     statusColor = "#0D6EFD";

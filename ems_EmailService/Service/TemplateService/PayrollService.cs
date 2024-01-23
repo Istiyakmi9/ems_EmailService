@@ -22,7 +22,7 @@ namespace EmailRequest.Service.TemplateService
             if (payrollTemplateModel.ToAddress.Count == 0)
                 throw new HiringBellException("To address is missing.");
 
-            if (payrollTemplateModel.FromDate == null)
+            if (payrollTemplateModel?.FromDate == null)
                 throw new HiringBellException("Date is missing.");
         }
 

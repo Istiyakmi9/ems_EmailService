@@ -4,6 +4,7 @@ using CoreBottomHalf.CommonModal.HtmlTemplateModel;
 using EmailRequest.Modal;
 using EmailRequest.Service.Interface;
 using ModalLayer.Modal;
+using System.Globalization;
 
 namespace EmailRequest.Service.TemplateService
 {
@@ -98,7 +99,8 @@ namespace EmailRequest.Service.TemplateService
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
 
             string statusColor = string.Empty;
-            switch (attendanceRequestModal!.ActionType?.ToLower())
+            var textinfo = CultureInfo.CurrentCulture.TextInfo;
+            switch (textinfo.ToTitleCase(attendanceRequestModal.ActionType))
             {
                 case ApplicationConstants.Submitted:
                     statusColor = "#0D6EFD";

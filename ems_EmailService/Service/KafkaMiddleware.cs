@@ -122,7 +122,7 @@ namespace EmailRequest.Service
                     SetDbConnection(billingTemplateModel.LocalConnectionString);
 
                     var billingService = scope.ServiceProvider.GetRequiredService<BillingService>();
-                    billingService?.SendEmailNotification(billingTemplateModel);
+                    _ = billingService.SendEmailNotification(billingTemplateModel);
                     break;
                 case KafkaServiceName.Leave:
                     LeaveTemplateModel leaveTemplateModel = JsonConvert.DeserializeObject<LeaveTemplateModel>(result.Message.Value);
@@ -142,7 +142,7 @@ namespace EmailRequest.Service
                     SetDbConnection(payrollTemplateModel.LocalConnectionString);
 
                     var payrollService = scope.ServiceProvider.GetRequiredService<PayrollService>();
-                    payrollService?.SendEmailNotification(payrollTemplateModel);
+                    payrollService.SendEmailNotification(payrollTemplateModel);
                     break;
                 case KafkaServiceName.BlockAttendance:
                     _logger.LogInformation($"[Kafka] Message received: Block attendance get");
@@ -176,7 +176,7 @@ namespace EmailRequest.Service
                     SetDbConnection(forgotPasswordTemplateModel.LocalConnectionString);
 
                     var forgotpasswordService = scope.ServiceProvider.GetRequiredService<ForgotPasswordRequested>();
-                    forgotpasswordService?.SendEmailNotification(forgotPasswordTemplateModel);
+                    _ = forgotpasswordService.SendEmailNotification(forgotPasswordTemplateModel);
                     break;
                 case KafkaServiceName.Timesheet:
                     _logger.LogInformation($"[Kafka] Message received: Timesheet get");
@@ -192,13 +192,13 @@ namespace EmailRequest.Service
                         case AppConstants.Submitted:
                             var timesheetRequestedService = scope.ServiceProvider.GetRequiredService<TimesheetRequested>();
                             _logger.LogInformation($"[Kafka] Starting sending request.");
-                            timesheetRequestedService?.SendEmailNotification(timesheetSubmittedTemplate);
+                            _ = timesheetRequestedService.SendEmailNotification(timesheetSubmittedTemplate);
                             break;
                         case AppConstants.Approved:
                         case AppConstants.Rejected:
                             var timesheetActionService = scope.ServiceProvider.GetRequiredService<TimesheetAction>();
                             _logger.LogInformation($"[Kafka] Starting sending request.");
-                            timesheetActionService?.SendEmailNotification(timesheetSubmittedTemplate);
+                            _ = timesheetActionService.SendEmailNotification(timesheetSubmittedTemplate);
                             break;
                     }
 
@@ -213,7 +213,7 @@ namespace EmailRequest.Service
                     var commonRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
                     _logger.LogInformation($"[Kafka] Starting sending request.");
 
-                    Task _ = commonRequestService.SendEmailNotification(commonFields);
+                    _ = commonRequestService.SendEmailNotification(commonFields);
 
                     _logger.LogInformation($"[Kafka] Message received: ");
 
