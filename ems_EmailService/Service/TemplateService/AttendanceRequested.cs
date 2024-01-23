@@ -49,7 +49,6 @@ namespace EmailRequest.Service.TemplateService
         private EmailTemplate GetEmailTemplate()
         {
             _logger.LogInformation($"[1. Kafka] Trying to read email template from database.");
-            _db.SetupConnectionString("server=192.168.0.101;port=3308;database=bottomhalf;User Id=root;password=live@Bottomhalf_001;Connection Timeout=30;Connection Lifetime=0;Min Pool Size=0;Max Pool Size=100;Pooling=true;");
             EmailTemplate emailTemplate = _db.Get<EmailTemplate>("sp_email_template_get", new { EmailTemplateId = (int)TemplateEnum.Attendance });
 
             if (emailTemplate == null)

@@ -64,8 +64,8 @@ namespace EmailRequest.Service.TemplateService
             emailSenderModal.To = offerLetterTemplateModel.ToAddress;
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
 
-            var PdfTemplatePath = Path.Combine(_hostingEnvironment.ContentRootPath, "Documents\\htmltemplates\\emailtemplate.html");
-            emailSenderModal.FileLocationDetail.LogoPath = "Documents\\logos";
+            var PdfTemplatePath = Path.Combine(_hostingEnvironment.ContentRootPath, "ApplicationFiles\\htmltemplates\\emailtemplate.html");
+            emailSenderModal.FileLocationDetail.LogoPath = "ApplicationFiles\\logos";
             emailSenderModal.FileLocationDetail.RootPath = "E:\\Marghub\\core\\ems\\OnlineDataBuilderServer\\OnlineDataBuilder";
 
 

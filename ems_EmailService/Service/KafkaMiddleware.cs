@@ -203,6 +203,21 @@ namespace EmailRequest.Service
                     }
 
                     break;
+                case KafkaServiceName.Common:
+                    _logger.LogInformation($"[Kafka] Message received: Timesheet get");
+                    if (commonFields == null)
+                        throw new Exception("[Kafka] Received invalid object. Getting null value.");
+
+                    SetDbConnection(commonFields.LocalConnectionString);
+
+                    var commonRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
+                    _logger.LogInformation($"[Kafka] Starting sending request.");
+
+                    Task _ = commonRequestService.SendEmailNotification(commonFields);
+
+                    _logger.LogInformation($"[Kafka] Message received: ");
+
+                    break;
             }
         }
 

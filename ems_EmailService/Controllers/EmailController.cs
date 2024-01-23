@@ -1,4 +1,5 @@
 ﻿using CoreBottomHalf.CommonModal.HtmlTemplateModel;
+using EmailRequest.Service;
 using EmailRequest.Service.TemplateService;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,7 +21,7 @@ namespace EmailRequest.Controllers
         private readonly PayrollService _payrollTemplate;
         private readonly TimesheetAction _timesheetApprovalTemplate;
         private readonly TimesheetRequested _timesheetTemplate;
-
+        private readonly CommonRequestService _commonRequestService;
         public EmailController(BillingService billingTemplate,
             AttendanceRequested attendanceTemplate,
             AutoLeaveMigrationTemplate autoLeaveMigrationTemplate,
@@ -32,7 +33,8 @@ namespace EmailRequest.Controllers
             OfferLetterTemplate offerLetterTemplate,
             PayrollService payrollTemplate,
             TimesheetAction timesheetApprovalTemplate,
-            TimesheetRequested timesheetTemplate)
+            TimesheetRequested timesheetTemplate,
+            CommonRequestService commonRequestService)
         {
             _billingTemplate = billingTemplate;
             _attendanceTemplate = attendanceTemplate;
@@ -46,6 +48,7 @@ namespace EmailRequest.Controllers
             _payrollTemplate = payrollTemplate;
             _timesheetApprovalTemplate = timesheetApprovalTemplate;
             _timesheetTemplate = timesheetTemplate;
+            _commonRequestService = commonRequestService;
         }
 
         [HttpPost("Email/NewRegistration")]
@@ -124,6 +127,12 @@ namespace EmailRequest.Controllers
         public async Task TimesheetEmail(TimesheetApprovalTemplateModel timesheetApprovalTemplateModel)
         {
             await _timesheetTemplate.SendEmailNotification(timesheetApprovalTemplateModel);
+        }
+
+        [HttpPost("Email/Exception")]
+        public async Task TimesheetEmail(CommonFields commonFields)
+        {
+            await _commonRequestService.SendEmailNotification(commonFields);
         }
     }
 }
