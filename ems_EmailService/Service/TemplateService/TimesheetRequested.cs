@@ -3,6 +3,7 @@ using BottomhalfCore.DatabaseLayer.Common.Code;
 using CoreBottomHalf.CommonModal.HtmlTemplateModel;
 using EmailRequest.Modal;
 using ModalLayer.Modal;
+using System.Globalization;
 
 namespace EmailRequest.Service.TemplateService
 {
@@ -35,10 +36,10 @@ namespace EmailRequest.Service.TemplateService
             if (timesheetSubmittedTemplateModel.DayCount < 0)
                 throw new HiringBellException("Days count is missing.");
 
-            if (timesheetSubmittedTemplateModel.FromDate == null)
+            if (timesheetSubmittedTemplateModel?.FromDate == null)
                 throw new HiringBellException("Date is missing.");
 
-            if (timesheetSubmittedTemplateModel.ToDate == null)
+            if (timesheetSubmittedTemplateModel?.ToDate == null)
                 throw new HiringBellException("Date is missing.");
         }
 
@@ -98,7 +99,8 @@ namespace EmailRequest.Service.TemplateService
                 var html = ApplicationResource.TimesheetApplied;
 
                 string statusColor = string.Empty;
-                switch (timesheetSubmittedTemplateModel?.ActionType?.ToLower())
+                var textinfo = CultureInfo.CurrentCulture.TextInfo;
+                switch (textinfo.ToTitleCase(timesheetSubmittedTemplateModel.ActionType))
                 {
                     case ApplicationConstants.Submitted:
                         statusColor = "#0D6EFD";
@@ -113,9 +115,9 @@ namespace EmailRequest.Service.TemplateService
 
                 html = html.Replace("__REVEIVERNAME__", timesheetSubmittedTemplateModel.ManagerName)
                     .Replace("__DEVELOPERNAME__", timesheetSubmittedTemplateModel.DeveloperName)
-                    .Replace("__FROMDATE__", timesheetSubmittedTemplateModel?.FromDate.ToString("dddd, dd MMMM yyyy"))
-                    .Replace("__TODATE__", timesheetSubmittedTemplateModel?.ToDate.ToString("dddd, dd MMMM yyyy"))
-                    .Replace("__NOOFDAYS__", timesheetSubmittedTemplateModel!.DayCount.ToString())
+                    .Replace("__FROMDATE__", timesheetSubmittedTemplateModel.FromDate.ToString("dddd, dd MMMM yyyy"))
+                    .Replace("__TODATE__", timesheetSubmittedTemplateModel.ToDate.ToString("dddd, dd MMMM yyyy"))
+                    .Replace("__NOOFDAYS__", timesheetSubmittedTemplateModel.DayCount.ToString())
                     .Replace("__STATUS__", timesheetSubmittedTemplateModel.ActionType)
                     .Replace("__ACTIONNAME__", "Manager Name")
                     .Replace("__STATUSCOLOR__", statusColor)

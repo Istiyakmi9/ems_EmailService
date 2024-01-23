@@ -4,6 +4,7 @@ using CoreBottomHalf.CommonModal.HtmlTemplateModel;
 using EmailRequest.Modal;
 using EmailRequest.Service.Interface;
 using ModalLayer.Modal;
+using System.Globalization;
 
 namespace EmailRequest.Service.TemplateService
 {
@@ -41,7 +42,7 @@ namespace EmailRequest.Service.TemplateService
             if (attendanceTemplateModel.DayCount < 0)
                 throw new HiringBellException("Days count is missing.");
 
-            if (attendanceTemplateModel.FromDate == null)
+            if (attendanceTemplateModel?.FromDate == null)
                 throw new HiringBellException("Date is missing.");
         }
 
@@ -106,7 +107,8 @@ namespace EmailRequest.Service.TemplateService
                 var html = ApplicationResource.AttendanceApplied;
 
                 string statusColor = string.Empty;
-                switch (attendanceTemplateModel.ActionType.ToLower())
+                var textinfo = CultureInfo.CurrentCulture.TextInfo;
+                switch (textinfo.ToTitleCase(attendanceTemplateModel.ActionType))
                 {
                     case ApplicationConstants.Submitted:
                         statusColor = "#0D6EFD";

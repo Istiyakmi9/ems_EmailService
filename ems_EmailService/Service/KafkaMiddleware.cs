@@ -122,7 +122,7 @@ namespace EmailRequest.Service
                     SetDbConnection(billingTemplateModel.LocalConnectionString);
 
                     var billingService = scope.ServiceProvider.GetRequiredService<BillingService>();
-                    billingService?.SendEmailNotification(billingTemplateModel);
+                    billingService.SendEmailNotification(billingTemplateModel);
                     break;
                 case KafkaServiceName.Leave:
                     LeaveTemplateModel leaveTemplateModel = JsonConvert.DeserializeObject<LeaveTemplateModel>(result.Message.Value);
@@ -142,7 +142,7 @@ namespace EmailRequest.Service
                     SetDbConnection(payrollTemplateModel.LocalConnectionString);
 
                     var payrollService = scope.ServiceProvider.GetRequiredService<PayrollService>();
-                    payrollService?.SendEmailNotification(payrollTemplateModel);
+                    payrollService.SendEmailNotification(payrollTemplateModel);
                     break;
                 case KafkaServiceName.BlockAttendance:
                     _logger.LogInformation($"[Kafka] Message received: Block attendance get");
@@ -176,11 +176,11 @@ namespace EmailRequest.Service
                     SetDbConnection(forgotPasswordTemplateModel.LocalConnectionString);
 
                     var forgotpasswordService = scope.ServiceProvider.GetRequiredService<ForgotPasswordRequested>();
-                    forgotpasswordService?.SendEmailNotification(forgotPasswordTemplateModel);
+                    forgotpasswordService.SendEmailNotification(forgotPasswordTemplateModel);
                     break;
                 case KafkaServiceName.Timesheet:
                     _logger.LogInformation($"[Kafka] Message received: Timesheet get");
-                    TimesheetApprovalTemplateModel? timesheetSubmittedTemplate = JsonConvert.DeserializeObject<TimesheetApprovalTemplateModel>(result.Message.Value);
+                    TimesheetApprovalTemplateModel timesheetSubmittedTemplate = JsonConvert.DeserializeObject<TimesheetApprovalTemplateModel>(result.Message.Value);
                     if (timesheetSubmittedTemplate == null)
                         throw new Exception("[Kafka] Received invalid object for attendance template modal from producer.");
 
@@ -192,13 +192,13 @@ namespace EmailRequest.Service
                         case AppConstants.Submitted:
                             var timesheetRequestedService = scope.ServiceProvider.GetRequiredService<TimesheetRequested>();
                             _logger.LogInformation($"[Kafka] Starting sending request.");
-                            timesheetRequestedService?.SendEmailNotification(timesheetSubmittedTemplate);
+                            timesheetRequestedService.SendEmailNotification(timesheetSubmittedTemplate);
                             break;
                         case AppConstants.Approved:
                         case AppConstants.Rejected:
                             var timesheetActionService = scope.ServiceProvider.GetRequiredService<TimesheetAction>();
                             _logger.LogInformation($"[Kafka] Starting sending request.");
-                            timesheetActionService?.SendEmailNotification(timesheetSubmittedTemplate);
+                            timesheetActionService.SendEmailNotification(timesheetSubmittedTemplate);
                             break;
                     }
 
