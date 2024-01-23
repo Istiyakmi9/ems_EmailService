@@ -180,7 +180,7 @@ namespace EmailRequest.Service
                     break;
                 case KafkaServiceName.Timesheet:
                     _logger.LogInformation($"[Kafka] Message received: Timesheet get");
-                    TimesheetApprovalTemplateModel? timesheetSubmittedTemplate = JsonConvert.DeserializeObject<TimesheetApprovalTemplateModel>(result.Message.Value);
+                    TimesheetApprovalTemplateModel timesheetSubmittedTemplate = JsonConvert.DeserializeObject<TimesheetApprovalTemplateModel>(result.Message.Value);
                     if (timesheetSubmittedTemplate == null)
                         throw new Exception("[Kafka] Received invalid object for attendance template modal from producer.");
 
@@ -200,6 +200,27 @@ namespace EmailRequest.Service
                             _logger.LogInformation($"[Kafka] Starting sending request.");
                             timesheetActionService?.SendEmailNotification(timesheetSubmittedTemplate);
                             break;
+                    }
+
+                    break;
+                case KafkaServiceName.Common:
+                    _logger.LogInformation($"[Kafka] Message received: Timesheet get");
+                    try
+                    {
+                        if (commonFields == null)
+                            throw new Exception("[Kafka] Received invalid object. Getting null value.");
+
+                        SetDbConnection(commonFields.LocalConnectionString);
+
+                        var commonRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
+                        _logger.LogInformation($"[Kafka] Starting sending request.");
+                        commonRequestService.SendEmailNotification(commonFields);
+
+                        _logger.LogInformation($"[Kafka] Message received: ");
+                    }
+                    catch (Exception)
+                    {
+                        throw;
                     }
 
                     break;
