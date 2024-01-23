@@ -48,9 +48,9 @@ namespace EmailRequest.Service
                 throw HiringBellException.ThrowBadRequest("Logo path not found");
 
             EmailSenderModal emailSenderModal = new EmailSenderModal();
-            emailSenderModal.Title = "Exception from live server";
-            emailSenderModal.Subject = "Exception message";
-            emailSenderModal.To = new List<string> {"marghub12@gmail.com" };
+            emailSenderModal.Title = "EMSTUM Application Exception";
+            emailSenderModal.Subject = "Exception message and reason";
+            emailSenderModal.To = new List<string> { "marghub12@gmail.com", "istiyaq.mi9@gmail.com" };
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
 
             var html = ApplicationResource.CommonException;
