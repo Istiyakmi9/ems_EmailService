@@ -50,7 +50,6 @@ namespace EmailRequest.Service.TemplateService
         {
             try
             {
-                _db.SetupConnectionString(forgotPasswordTemplateModel.LocalConnectionString);
                 // validate request modal
                 ValidateModal(forgotPasswordTemplateModel);
                 EmailTemplate emailTemplate = GetEmailTemplate();
