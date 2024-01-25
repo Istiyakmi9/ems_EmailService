@@ -14,8 +14,10 @@ namespace EmailRequest.Service
         public async Task SendEmailNotification(CommonFields commonFields)
         {
             EmailSenderModal emailSenderModal = new EmailSenderModal();
+            TimeZoneInfo INDIAN_ZONE = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+            DateTime time = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
             emailSenderModal.Title = "EMSTUM Application Exception";
-            emailSenderModal.Subject = "Exception message and reason";
+            emailSenderModal.Subject = $"Exception message and reason at {time}";
             emailSenderModal.To = new List<string> { "marghub12@gmail.com", "istiyaq.mi9@gmail.com" };
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
 
