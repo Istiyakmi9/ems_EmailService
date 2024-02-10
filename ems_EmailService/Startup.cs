@@ -31,7 +31,7 @@ namespace EmailRequest
         {
             services.AddControllers();
 
-            services.Configure<KafkaServiceConfig>(x => Configuration.GetSection(nameof(KafkaServiceConfig)).Bind(x));
+            services.Configure<List<KafkaServiceConfig>>(x => Configuration.GetSection(nameof(KafkaServiceConfig)).Bind(x));
 
             // add services
             services.AddScoped<IEMailManager, EMailManager>();

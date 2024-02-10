@@ -13,12 +13,12 @@ namespace EmailRequest.Service
 {
     public class KafkaService : IHostedService
     {
-        private readonly KafkaServiceConfig _kafkaServiceConfig;
+        private readonly List<KafkaServiceConfig> _kafkaServiceConfig;
         private ILogger<KafkaService> _logger;
         private IServiceProvider _serviceProvider;
         private readonly IDb _db;
 
-        public KafkaService(IServiceProvider serviceProvider, ILogger<KafkaService> logger, IOptions<KafkaServiceConfig> options, IDb db)
+        public KafkaService(IServiceProvider serviceProvider, ILogger<KafkaService> logger, IOptions<List<KafkaServiceConfig>> options, IDb db)
         {
             _serviceProvider = serviceProvider;
             _kafkaServiceConfig = options.Value;
@@ -26,16 +26,11 @@ namespace EmailRequest.Service
             _db = db;
         }
 
-        public KafkaServiceConfig KafkaServiceConfig => _kafkaServiceConfig;
-
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("[Kafka] Kafka listener registered successfully.");
 
-            Task.Run(() =>
-            {
-                SubscribeKafkaTopic();
-            });
+            Task.Run(() => SubscribeKafkaTopic());
 
             return Task.CompletedTask;
         }
@@ -48,23 +43,29 @@ namespace EmailRequest.Service
 
         private void SubscribeKafkaTopic()
         {
+            KafkaServiceConfig kafkaConfig = _kafkaServiceConfig.Find(x => x.Topic == "attendance_request_action");
+            if (kafkaConfig == null)
+            {
+                throw new Exception($"No configuration found for the kafka service name: attendance_request_action");
+            }
+
             using (IServiceScope scope = _serviceProvider.CreateScope())
             {
                 var config = new ConsumerConfig
                 {
-                    GroupId = "gid-consumers",
-                    BootstrapServers = $"{KafkaServiceConfig.ServiceName}:{KafkaServiceConfig.Port}"
+                    GroupId = kafkaConfig.GroupId,
+                    BootstrapServers = $"{kafkaConfig.ServiceName}:{kafkaConfig.Port}"
                 };
 
-                _logger.LogInformation($"[Kafka] Start listning kafka topic: {KafkaServiceConfig.AttendanceEmailTopic}");
+                _logger.LogInformation($"[Kafka] Start listning kafka topic: {kafkaConfig.Topic}");
                 using (var consumer = new ConsumerBuilder<Null, string>(config).Build())
                 {
-                    consumer.Subscribe(KafkaServiceConfig.AttendanceEmailTopic);
+                    consumer.Subscribe(kafkaConfig.Topic);
                     while (true)
                     {
                         try
                         {
-                            _logger.LogInformation($"[Kafka] Waiting on topic: {KafkaServiceConfig.AttendanceEmailTopic}");
+                            _logger.LogInformation($"[Kafka] Waiting on topic: {kafkaConfig.Topic}");
                             var message = consumer.Consume();
 
                             HandleMessageSendEmail(message, scope);
@@ -217,6 +218,20 @@ namespace EmailRequest.Service
 
                     _logger.LogInformation($"[Kafka] Message received: ");
 
+                    break;
+                case KafkaServiceName.Notification:
+                    _logger.LogInformation($"[Kafka] Message received: Timesheet get");
+                    if (commonFields == null)
+                        throw new Exception("[Kafka] Received invalid object. Getting null value.");
+
+                    SetDbConnection(commonFields.LocalConnectionString);
+
+                    var commonNotificationRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
+                    _logger.LogInformation($"[Kafka] Starting sending request.");
+
+                    _ = commonNotificationRequestService.SendEmailNotification(commonFields);
+
+                    _logger.LogInformation($"[Kafka] Message received: ");
                     break;
             }
         }
