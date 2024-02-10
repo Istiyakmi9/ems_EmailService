@@ -3,6 +3,7 @@ using BottomhalfCore.DatabaseLayer.Common.Code;
 using BottomhalfCore.DatabaseLayer.MySql.Code;
 using EmailRequest.EMailService.Interface;
 using EmailRequest.EMailService.Service;
+using EmailRequest.Modal.Common;
 using EmailRequest.Service;
 using EmailRequest.Service.TemplateService;
 using EmalRequest.Service;
@@ -43,6 +44,8 @@ namespace EmailRequest
                 db.SetupConnectionString(cs);
                 return db;
             });
+
+            services.Configure<MasterDatabase>(x => Configuration.GetSection(nameof(MasterDatabase)).Bind(x));
 
             services.AddScoped<BillingService>();
             services.AddScoped<AttendanceRequested>();

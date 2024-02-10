@@ -4,6 +4,7 @@ using BottomhalfCore.DatabaseLayer.Common.Code;
 using Confluent.Kafka;
 using CoreBottomHalf.CommonModal.HtmlTemplateModel;
 using EmailRequest.Modal;
+using EmailRequest.Modal.Common;
 using EmailRequest.Service.Interface;
 using EmailRequest.Service.TemplateService;
 using Microsoft.Extensions.Options;
@@ -17,13 +18,16 @@ namespace EmailRequest.Service
         private readonly List<KafkaServiceConfig> _kafkaServiceConfig;
         private ILogger<KafkaService> _logger;
         private IServiceProvider _serviceProvider;
+        private readonly MasterDatabase _masterDatabase;
         private readonly IDb _db;
 
-        public KafkaService(IServiceProvider serviceProvider, ILogger<KafkaService> logger, IOptions<List<KafkaServiceConfig>> options, IDb db)
+        public KafkaService(IServiceProvider serviceProvider, ILogger<KafkaService> logger, 
+            IOptions<List<KafkaServiceConfig>> options, IDb db, IOptions<MasterDatabase> masterConfigOptions)
         {
             _serviceProvider = serviceProvider;
             _kafkaServiceConfig = options.Value;
             _logger = logger;
+            _masterDatabase = masterConfigOptions.Value;
             _db = db;
         }
 
@@ -220,17 +224,17 @@ namespace EmailRequest.Service
                     _logger.LogInformation($"[Kafka] Message received: ");
 
                     break;
-                case KafkaServiceName.Notification:
+                case KafkaServiceName.DailyGreetingJob:
                     _logger.LogInformation($"[Kafka] Message received: Timesheet get");
                     if (kafkaPayload == null)
                         throw new Exception("[Kafka] Received invalid object. Getting null value.");
 
-                    SetDbConnection(kafkaPayload.LocalConnectionString);
+                    SetDbConnection(MasterDatabase.BuildConnectionString(_masterDatabase));
 
                     var commonNotificationRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
                     _logger.LogInformation($"[Kafka] Starting sending request.");
 
-                    _ = commonNotificationRequestService.SendEmailNotification(kafkaPayload);
+                    _ = commonNotificationRequestService.SendDailyDigestEmailNotification(kafkaPayload);
 
                     _logger.LogInformation($"[Kafka] Message received: ");
                     break;

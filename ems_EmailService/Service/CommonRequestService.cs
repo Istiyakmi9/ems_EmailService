@@ -37,7 +37,7 @@ namespace EmailRequest.Service
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
 
             var html = ApplicationResource.CommonException;
-            emailSenderModal.Body = html.Replace("__BODY__", kafkaPayload.Body);
+            emailSenderModal.Body = html.Replace("__BODY__", kafkaPayload.Message);
 
             await Task.Run(() => _emailService.SendEmail(emailSenderModal));
         }
