@@ -36,41 +36,11 @@ namespace EmailRequest.Service.TemplateService
             return emailTemplate;
         }
 
-        private string GetCompanyLogo(int companyId)
-        {
-            if (companyId <= 0)
-                throw HiringBellException.ThrowBadRequest("Invalid company id");
-
-            Files file = _db.Get<Files>("sp_company_primary_logo_get_byid", new
-            {
-                CompanyId = companyId,
-                FileRole = ApplicationConstants.CompanyPrimaryLogo
-            });
-
-            if (file == null)
-                throw new HiringBellException(" Company primary logo not found. Please contact to admin.");
-
-            string filePath = string.Empty;
-            if (file.FileName.Contains("."))
-                filePath = $"{AppConstants.BaseImageUrl}{file.FilePath}/{file.FileName}";
-            else
-                filePath = $"{AppConstants.BaseImageUrl}{file.FilePath}/{file.FileName}.+{file.FileExtension}";
-
-            if (filePath.Contains("\\"))
-                filePath = filePath.Replace("\\", "/");
-
-            return filePath;
-        }
-
         public void SendEmailNotification(PayrollTemplateModel payrollTemplateModel)
         {
             // validate request modal
             ValidateModal(payrollTemplateModel);
             EmailTemplate emailTemplate = GetEmailTemplate();
-            var logoPath = GetCompanyLogo(payrollTemplateModel.CompanyId);
-            if (string.IsNullOrEmpty(logoPath))
-                throw HiringBellException.ThrowBadRequest("Logo path not found");
-
             EmailSenderModal emailSenderModal = new EmailSenderModal();
             emailSenderModal.Title = emailTemplate.EmailTitle;
             emailSenderModal.Subject = emailTemplate.SubjectLine.Replace("__PRESENTDATE__", DateTime.Now.ToString("MMMM"));
@@ -82,7 +52,6 @@ namespace EmailRequest.Service.TemplateService
                 .Replace("__PRESENTDATE__", DateTime.Now.ToString("dd MMMM yyyy"))
                 .Replace("__COMPANYNAME__", emailTemplate.EmailClosingStatement)
                 .Replace("__MOBILENO__", emailTemplate.ContactNo)
-                .Replace("__COMPANYLOGO__", logoPath)
                 .Replace("__EMAILNOTE__", emailTemplate.EmailNote);
 
             emailSenderModal.Body = html;
