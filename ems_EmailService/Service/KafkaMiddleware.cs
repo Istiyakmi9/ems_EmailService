@@ -1,6 +1,8 @@
 ﻿using Bot.CoreBottomHalf.CommonModal.HtmlTemplateModel;
 using Bot.CoreBottomHalf.CommonModal.Kafka;
 using BottomhalfCore.DatabaseLayer.Common.Code;
+using BottomhalfCore.DatabaseLayer.MsSql.Code;
+using BottomhalfCore.DatabaseLayer.MySql.Code;
 using Confluent.Kafka;
 using CoreBottomHalf.CommonModal.HtmlTemplateModel;
 using EmailRequest.Modal;
@@ -96,6 +98,8 @@ namespace EmailRequest.Service
             if (kafkaPayload == null)
                 throw new Exception("[Kafka] Received invalid object from producer.");
 
+            _db.SetupConnectionString(MasterDatabase.BuildConnectionString(_masterDatabase));
+
             IEmailServiceRequest emailServiceRequest = null;
             switch (kafkaPayload.kafkaServiceName)
             {
@@ -103,8 +107,6 @@ namespace EmailRequest.Service
                     AttendanceRequestModal attendanceTemplateModel = JsonConvert.DeserializeObject<AttendanceRequestModal>(result.Message.Value);
                     if (attendanceTemplateModel == null)
                         throw new Exception("[Kafka] Received invalid object for attendance template modal from producer.");
-
-                    SetDbConnection(attendanceTemplateModel.LocalConnectionString);
 
                     switch (attendanceTemplateModel.ActionType)
                     {
@@ -125,8 +127,6 @@ namespace EmailRequest.Service
                     if (billingTemplateModel == null)
                         throw new Exception("[Kafka] Received invalid object for billing template modal from producer.");
 
-                    SetDbConnection(billingTemplateModel.LocalConnectionString);
-
                     var billingService = scope.ServiceProvider.GetRequiredService<BillingService>();
                     _ = billingService.SendEmailNotification(billingTemplateModel);
                     break;
@@ -134,8 +134,6 @@ namespace EmailRequest.Service
                     LeaveTemplateModel leaveTemplateModel = JsonConvert.DeserializeObject<LeaveTemplateModel>(result.Message.Value);
                     if (leaveTemplateModel == null)
                         throw new Exception("[Kafka] Received invalid object for leave template modal from producer.");
-
-                    SetDbConnection(leaveTemplateModel.LocalConnectionString);
 
                     var leaveRequested = scope.ServiceProvider.GetRequiredService<LeaveRequested>();
                     leaveRequested.SetupEmailTemplate(leaveTemplateModel);
@@ -145,8 +143,6 @@ namespace EmailRequest.Service
                     if (payrollTemplateModel == null)
                         throw new Exception("[Kafka] Received invalid object for payroll template modal from producer.");
 
-                    SetDbConnection(payrollTemplateModel.LocalConnectionString);
-
                     var payrollService = scope.ServiceProvider.GetRequiredService<PayrollService>();
                     payrollService.SendEmailNotification(payrollTemplateModel);
                     break;
@@ -155,8 +151,6 @@ namespace EmailRequest.Service
                     AttendanceRequestModal attendanceTemplate = JsonConvert.DeserializeObject<AttendanceRequestModal>(result.Message.Value);
                     if (attendanceTemplate == null)
                         throw new Exception("[Kafka] Received invalid object for attendance template modal from producer.");
-
-                    SetDbConnection(attendanceTemplate.LocalConnectionString);
 
                     _logger.LogInformation($"[Kafka] Message received: {attendanceTemplate.ActionType}");
                     switch (attendanceTemplate.ActionType)
@@ -179,8 +173,6 @@ namespace EmailRequest.Service
                     if (forgotPasswordTemplateModel == null)
                         throw new Exception("[Kafka] Received invalid object for forgot password template modal from producer.");
 
-                    SetDbConnection(forgotPasswordTemplateModel.LocalConnectionString);
-
                     var forgotpasswordService = scope.ServiceProvider.GetRequiredService<ForgotPasswordRequested>();
                     _ = forgotpasswordService.SendEmailNotification(forgotPasswordTemplateModel);
                     break;
@@ -189,8 +181,6 @@ namespace EmailRequest.Service
                     TimesheetApprovalTemplateModel timesheetSubmittedTemplate = JsonConvert.DeserializeObject<TimesheetApprovalTemplateModel>(result.Message.Value);
                     if (timesheetSubmittedTemplate == null)
                         throw new Exception("[Kafka] Received invalid object for attendance template modal from producer.");
-
-                    SetDbConnection(timesheetSubmittedTemplate.LocalConnectionString);
 
                     _logger.LogInformation($"[Kafka] Message received: {timesheetSubmittedTemplate.ActionType}");
                     switch (timesheetSubmittedTemplate.ActionType)
@@ -214,8 +204,6 @@ namespace EmailRequest.Service
                     if (kafkaPayload == null)
                         throw new Exception("[Kafka] Received invalid object. Getting null value.");
 
-                    SetDbConnection(kafkaPayload.LocalConnectionString);
-
                     var commonRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
                     _logger.LogInformation($"[Kafka] Starting sending request.");
 
@@ -227,9 +215,7 @@ namespace EmailRequest.Service
                 case KafkaServiceName.DailyGreetingJob:
                     _logger.LogInformation($"[Kafka] Message received: Timesheet get");
                     if (kafkaPayload == null)
-                        throw new Exception("[Kafka] Received invalid object. Getting null value.");
-
-                    SetDbConnection(MasterDatabase.BuildConnectionString(_masterDatabase));
+                        throw new Exception("[Kafka] Received invalid object. Getting null value.");                    
 
                     var commonNotificationRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
                     _logger.LogInformation($"[Kafka] Starting sending request.");
@@ -239,12 +225,6 @@ namespace EmailRequest.Service
                     _logger.LogInformation($"[Kafka] Message received: ");
                     break;
             }
-        }
-
-        private void SetDbConnection(string cs)
-        {
-            _logger.LogInformation($"[Kafka] Setting connection: {cs}");
-            _db.SetupConnectionString(cs);
         }
     }
 }
