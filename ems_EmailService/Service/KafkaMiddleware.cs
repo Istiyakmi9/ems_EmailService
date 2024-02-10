@@ -1,4 +1,5 @@
 ﻿using Bot.CoreBottomHalf.CommonModal.HtmlTemplateModel;
+using Bot.CoreBottomHalf.CommonModal.Kafka;
 using BottomhalfCore.DatabaseLayer.Common.Code;
 using Confluent.Kafka;
 using CoreBottomHalf.CommonModal.HtmlTemplateModel;
@@ -87,12 +88,12 @@ namespace EmailRequest.Service
             _logger.LogInformation($"[Kafka] Message received: {result.Message.Value}");
 
 
-            CommonFields commonFields = JsonConvert.DeserializeObject<CommonFields>(result.Message.Value);
-            if (commonFields == null)
+            KafkaPayload kafkaPayload = JsonConvert.DeserializeObject<KafkaPayload>(result.Message.Value);
+            if (kafkaPayload == null)
                 throw new Exception("[Kafka] Received invalid object from producer.");
 
             IEmailServiceRequest emailServiceRequest = null;
-            switch (commonFields.kafkaServiceName)
+            switch (kafkaPayload.kafkaServiceName)
             {
                 case KafkaServiceName.Attendance:
                     AttendanceRequestModal attendanceTemplateModel = JsonConvert.DeserializeObject<AttendanceRequestModal>(result.Message.Value);
@@ -206,30 +207,30 @@ namespace EmailRequest.Service
                     break;
                 case KafkaServiceName.Common:
                     _logger.LogInformation($"[Kafka] Message received: Timesheet get");
-                    if (commonFields == null)
+                    if (kafkaPayload == null)
                         throw new Exception("[Kafka] Received invalid object. Getting null value.");
 
-                    SetDbConnection(commonFields.LocalConnectionString);
+                    SetDbConnection(kafkaPayload.LocalConnectionString);
 
                     var commonRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
                     _logger.LogInformation($"[Kafka] Starting sending request.");
 
-                    _ = commonRequestService.SendEmailNotification(commonFields);
+                    _ = commonRequestService.SendEmailNotification(kafkaPayload);
 
                     _logger.LogInformation($"[Kafka] Message received: ");
 
                     break;
                 case KafkaServiceName.Notification:
                     _logger.LogInformation($"[Kafka] Message received: Timesheet get");
-                    if (commonFields == null)
+                    if (kafkaPayload == null)
                         throw new Exception("[Kafka] Received invalid object. Getting null value.");
 
-                    SetDbConnection(commonFields.LocalConnectionString);
+                    SetDbConnection(kafkaPayload.LocalConnectionString);
 
                     var commonNotificationRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
                     _logger.LogInformation($"[Kafka] Starting sending request.");
 
-                    _ = commonNotificationRequestService.SendEmailNotification(commonFields);
+                    _ = commonNotificationRequestService.SendEmailNotification(kafkaPayload);
 
                     _logger.LogInformation($"[Kafka] Message received: ");
                     break;

@@ -1,4 +1,5 @@
-﻿using CoreBottomHalf.CommonModal.HtmlTemplateModel;
+﻿using Bot.CoreBottomHalf.CommonModal.Kafka;
+using CoreBottomHalf.CommonModal.HtmlTemplateModel;
 using EmailRequest.Service;
 using EmailRequest.Service.TemplateService;
 using Microsoft.AspNetCore.Mvc;
@@ -130,9 +131,9 @@ namespace EmailRequest.Controllers
         }
 
         [HttpPost("Email/Exception")]
-        public async Task TimesheetEmail(CommonFields commonFields)
+        public async Task TimesheetEmail(KafkaPayload kafkaPayload)
         {
-            await _commonRequestService.SendEmailNotification(commonFields);
+            await _commonRequestService.SendEmailNotification(kafkaPayload);
         }
     }
 }
