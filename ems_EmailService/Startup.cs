@@ -3,10 +3,12 @@ using BottomhalfCore.DatabaseLayer.Common.Code;
 using BottomhalfCore.DatabaseLayer.MySql.Code;
 using EmailRequest.EMailService.Interface;
 using EmailRequest.EMailService.Service;
+using EmailRequest.Modal.Common;
 using EmailRequest.Service;
 using EmailRequest.Service.TemplateService;
 using EmalRequest.Service;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using ModalLayer;
 
 namespace EmailRequest
@@ -31,18 +33,14 @@ namespace EmailRequest
         {
             services.AddControllers();
 
-            services.Configure<KafkaServiceConfig>(x => Configuration.GetSection(nameof(KafkaServiceConfig)).Bind(x));
+            services.Configure<List<KafkaServiceConfig>>(x => Configuration.GetSection(nameof(KafkaServiceConfig)).Bind(x));
+            services.Configure<MasterDatabase>(x => Configuration.GetSection(nameof(MasterDatabase)).Bind(x));
 
             // add services
             services.AddScoped<IEMailManager, EMailManager>();
             services.AddScoped<IEmailService, EmailService>();
-            services.AddSingleton<IDb, Db>(x =>
-            {
-                var db = new Db();
-                var cs = Configuration.GetConnectionString("OnlinedatabuilderDb");
-                db.SetupConnectionString(cs);
-                return db;
-            });
+            services.AddSingleton<IDb, Db>();
+
 
             services.AddScoped<BillingService>();
             services.AddScoped<AttendanceRequested>();

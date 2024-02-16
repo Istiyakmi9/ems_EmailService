@@ -1,8 +1,12 @@
 ﻿using Bot.CoreBottomHalf.CommonModal.HtmlTemplateModel;
+using Bot.CoreBottomHalf.CommonModal.Kafka;
 using BottomhalfCore.DatabaseLayer.Common.Code;
+using BottomhalfCore.DatabaseLayer.MsSql.Code;
+using BottomhalfCore.DatabaseLayer.MySql.Code;
 using Confluent.Kafka;
 using CoreBottomHalf.CommonModal.HtmlTemplateModel;
 using EmailRequest.Modal;
+using EmailRequest.Modal.Common;
 using EmailRequest.Service.Interface;
 using EmailRequest.Service.TemplateService;
 using Microsoft.Extensions.Options;
@@ -13,29 +17,27 @@ namespace EmailRequest.Service
 {
     public class KafkaService : IHostedService
     {
-        private readonly KafkaServiceConfig _kafkaServiceConfig;
+        private readonly List<KafkaServiceConfig> _kafkaServiceConfig;
         private ILogger<KafkaService> _logger;
         private IServiceProvider _serviceProvider;
+        private readonly MasterDatabase _masterDatabase;
         private readonly IDb _db;
 
-        public KafkaService(IServiceProvider serviceProvider, ILogger<KafkaService> logger, IOptions<KafkaServiceConfig> options, IDb db)
+        public KafkaService(IServiceProvider serviceProvider, ILogger<KafkaService> logger, 
+            IOptions<List<KafkaServiceConfig>> options, IDb db, IOptions<MasterDatabase> masterConfigOptions)
         {
             _serviceProvider = serviceProvider;
             _kafkaServiceConfig = options.Value;
             _logger = logger;
+            _masterDatabase = masterConfigOptions.Value;
             _db = db;
         }
-
-        public KafkaServiceConfig KafkaServiceConfig => _kafkaServiceConfig;
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("[Kafka] Kafka listener registered successfully.");
 
-            Task.Run(() =>
-            {
-                SubscribeKafkaTopic();
-            });
+            Task.Run(() => SubscribeKafkaTopic());
 
             return Task.CompletedTask;
         }
@@ -48,23 +50,29 @@ namespace EmailRequest.Service
 
         private void SubscribeKafkaTopic()
         {
+            KafkaServiceConfig kafkaConfig = _kafkaServiceConfig.Find(x => x.Topic == "attendance_request_action");
+            if (kafkaConfig == null)
+            {
+                throw new Exception($"No configuration found for the kafka service name: attendance_request_action");
+            }
+
             using (IServiceScope scope = _serviceProvider.CreateScope())
             {
                 var config = new ConsumerConfig
                 {
-                    GroupId = "gid-consumers",
-                    BootstrapServers = $"{KafkaServiceConfig.ServiceName}:{KafkaServiceConfig.Port}"
+                    GroupId = kafkaConfig.GroupId,
+                    BootstrapServers = $"{kafkaConfig.ServiceName}:{kafkaConfig.Port}"
                 };
 
-                _logger.LogInformation($"[Kafka] Start listning kafka topic: {KafkaServiceConfig.AttendanceEmailTopic}");
+                _logger.LogInformation($"[Kafka] Start listning kafka topic: {kafkaConfig.Topic}");
                 using (var consumer = new ConsumerBuilder<Null, string>(config).Build())
                 {
-                    consumer.Subscribe(KafkaServiceConfig.AttendanceEmailTopic);
+                    consumer.Subscribe(kafkaConfig.Topic);
                     while (true)
                     {
                         try
                         {
-                            _logger.LogInformation($"[Kafka] Waiting on topic: {KafkaServiceConfig.AttendanceEmailTopic}");
+                            _logger.LogInformation($"[Kafka] Waiting on topic: {kafkaConfig.Topic}");
                             var message = consumer.Consume();
 
                             HandleMessageSendEmail(message, scope);
@@ -86,19 +94,19 @@ namespace EmailRequest.Service
             _logger.LogInformation($"[Kafka] Message received: {result.Message.Value}");
 
 
-            CommonFields commonFields = JsonConvert.DeserializeObject<CommonFields>(result.Message.Value);
-            if (commonFields == null)
+            KafkaPayload kafkaPayload = JsonConvert.DeserializeObject<KafkaPayload>(result.Message.Value);
+            if (kafkaPayload == null)
                 throw new Exception("[Kafka] Received invalid object from producer.");
 
+            _db.SetupConnectionString(MasterDatabase.BuildConnectionString(_masterDatabase));
+
             IEmailServiceRequest emailServiceRequest = null;
-            switch (commonFields.kafkaServiceName)
+            switch (kafkaPayload.kafkaServiceName)
             {
                 case KafkaServiceName.Attendance:
                     AttendanceRequestModal attendanceTemplateModel = JsonConvert.DeserializeObject<AttendanceRequestModal>(result.Message.Value);
                     if (attendanceTemplateModel == null)
                         throw new Exception("[Kafka] Received invalid object for attendance template modal from producer.");
-
-                    SetDbConnection(attendanceTemplateModel.LocalConnectionString);
 
                     switch (attendanceTemplateModel.ActionType)
                     {
@@ -119,8 +127,6 @@ namespace EmailRequest.Service
                     if (billingTemplateModel == null)
                         throw new Exception("[Kafka] Received invalid object for billing template modal from producer.");
 
-                    SetDbConnection(billingTemplateModel.LocalConnectionString);
-
                     var billingService = scope.ServiceProvider.GetRequiredService<BillingService>();
                     _ = billingService.SendEmailNotification(billingTemplateModel);
                     break;
@@ -128,8 +134,6 @@ namespace EmailRequest.Service
                     LeaveTemplateModel leaveTemplateModel = JsonConvert.DeserializeObject<LeaveTemplateModel>(result.Message.Value);
                     if (leaveTemplateModel == null)
                         throw new Exception("[Kafka] Received invalid object for leave template modal from producer.");
-
-                    SetDbConnection(leaveTemplateModel.LocalConnectionString);
 
                     var leaveRequested = scope.ServiceProvider.GetRequiredService<LeaveRequested>();
                     leaveRequested.SetupEmailTemplate(leaveTemplateModel);
@@ -139,8 +143,6 @@ namespace EmailRequest.Service
                     if (payrollTemplateModel == null)
                         throw new Exception("[Kafka] Received invalid object for payroll template modal from producer.");
 
-                    SetDbConnection(payrollTemplateModel.LocalConnectionString);
-
                     var payrollService = scope.ServiceProvider.GetRequiredService<PayrollService>();
                     payrollService.SendEmailNotification(payrollTemplateModel);
                     break;
@@ -149,8 +151,6 @@ namespace EmailRequest.Service
                     AttendanceRequestModal attendanceTemplate = JsonConvert.DeserializeObject<AttendanceRequestModal>(result.Message.Value);
                     if (attendanceTemplate == null)
                         throw new Exception("[Kafka] Received invalid object for attendance template modal from producer.");
-
-                    SetDbConnection(attendanceTemplate.LocalConnectionString);
 
                     _logger.LogInformation($"[Kafka] Message received: {attendanceTemplate.ActionType}");
                     switch (attendanceTemplate.ActionType)
@@ -173,8 +173,6 @@ namespace EmailRequest.Service
                     if (forgotPasswordTemplateModel == null)
                         throw new Exception("[Kafka] Received invalid object for forgot password template modal from producer.");
 
-                    SetDbConnection(forgotPasswordTemplateModel.LocalConnectionString);
-
                     var forgotpasswordService = scope.ServiceProvider.GetRequiredService<ForgotPasswordRequested>();
                     _ = forgotpasswordService.SendEmailNotification(forgotPasswordTemplateModel);
                     break;
@@ -183,8 +181,6 @@ namespace EmailRequest.Service
                     TimesheetApprovalTemplateModel timesheetSubmittedTemplate = JsonConvert.DeserializeObject<TimesheetApprovalTemplateModel>(result.Message.Value);
                     if (timesheetSubmittedTemplate == null)
                         throw new Exception("[Kafka] Received invalid object for attendance template modal from producer.");
-
-                    SetDbConnection(timesheetSubmittedTemplate.LocalConnectionString);
 
                     _logger.LogInformation($"[Kafka] Message received: {timesheetSubmittedTemplate.ActionType}");
                     switch (timesheetSubmittedTemplate.ActionType)
@@ -205,26 +201,30 @@ namespace EmailRequest.Service
                     break;
                 case KafkaServiceName.Common:
                     _logger.LogInformation($"[Kafka] Message received: Timesheet get");
-                    if (commonFields == null)
+                    if (kafkaPayload == null)
                         throw new Exception("[Kafka] Received invalid object. Getting null value.");
-
-                    SetDbConnection(commonFields.LocalConnectionString);
 
                     var commonRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
                     _logger.LogInformation($"[Kafka] Starting sending request.");
 
-                    _ = commonRequestService.SendEmailNotification(commonFields);
+                    _ = commonRequestService.SendEmailNotification(kafkaPayload);
 
                     _logger.LogInformation($"[Kafka] Message received: ");
 
                     break;
-            }
-        }
+                case KafkaServiceName.DailyGreetingJob:
+                    _logger.LogInformation($"[Kafka] Message received: Timesheet get");
+                    if (kafkaPayload == null)
+                        throw new Exception("[Kafka] Received invalid object. Getting null value.");                    
 
-        private void SetDbConnection(string cs)
-        {
-            _logger.LogInformation($"[Kafka] Setting connection: {cs}");
-            _db.SetupConnectionString(cs);
+                    var commonNotificationRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
+                    _logger.LogInformation($"[Kafka] Starting sending request.");
+
+                    _ = commonNotificationRequestService.SendDailyDigestEmailNotification(kafkaPayload);
+
+                    _logger.LogInformation($"[Kafka] Message received: ");
+                    break;
+            }
         }
     }
 }
