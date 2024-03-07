@@ -51,7 +51,11 @@ namespace EmailRequest.Service
 
             emailSenderModal.Title = "[EMSTUM]: Your daily digest";
             emailSenderModal.Subject = $"Daily digest [{kafkaPayload.UtcTimestamp}]";
-            emailSenderModal.To = kafkaPayload.ToAddress;
+            emailSenderModal.To = kafkaPayload.ToAddress != null
+                ?
+                    kafkaPayload.ToAddress
+                :
+                    new List<string> { "marghub12@gmail.com", "istiyaq.mi9@gmail.com", "kumarvivek1502@gmail.com" };
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
 
             var html = ApplicationResource.DailyNotification;
