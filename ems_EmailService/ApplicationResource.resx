@@ -323,7 +323,7 @@
             &lt;h2&gt;Good morning: Your daily digest&lt;/h2&gt;
             &lt;div style="border-bottom: 1px solid #d9d9d9; border-top: 1px solid #d9d9d9; padding-top: 10px; padding-bottom: 10px;"&gt;
                 &lt;div style="margin-top: 10px;"&gt;
-                    &lt;span&gt;__BODY__&lt;/span&gt;
+                    __BODY__
                 &lt;/div&gt;
             &lt;/div&gt;
         &lt;/div&gt;
