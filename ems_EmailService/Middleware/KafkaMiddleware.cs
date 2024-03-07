@@ -7,13 +7,14 @@ using Confluent.Kafka;
 using CoreBottomHalf.CommonModal.HtmlTemplateModel;
 using EmailRequest.Modal;
 using EmailRequest.Modal.Common;
+using EmailRequest.Service;
 using EmailRequest.Service.Interface;
 using EmailRequest.Service.TemplateService;
 using Microsoft.Extensions.Options;
 using ModalLayer;
 using Newtonsoft.Json;
 
-namespace EmailRequest.Service
+namespace EmailRequest.Middleware
 {
     public class KafkaService : IHostedService
     {
@@ -23,7 +24,7 @@ namespace EmailRequest.Service
         private readonly MasterDatabase _masterDatabase;
         private readonly IDb _db;
 
-        public KafkaService(IServiceProvider serviceProvider, ILogger<KafkaService> logger, 
+        public KafkaService(IServiceProvider serviceProvider, ILogger<KafkaService> logger,
             IOptions<List<KafkaServiceConfig>> options, IDb db, IOptions<MasterDatabase> masterConfigOptions)
         {
             _serviceProvider = serviceProvider;
@@ -207,15 +208,24 @@ namespace EmailRequest.Service
                     var commonRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
                     _logger.LogInformation($"[Kafka] Starting sending request.");
 
-                    _ = commonRequestService.SendEmailNotification(kafkaPayload);
+                    _ = commonRequestService.SendDailyDigestEmailNotification(kafkaPayload);
 
                     _logger.LogInformation($"[Kafka] Message received: ");
 
                     break;
+                case KafkaServiceName.UnhandledException:
+                    _logger.LogInformation($"[Kafka] Got unhandled exception");
+                    
+                    if (kafkaPayload == null)
+                        throw new Exception("[Kafka] Received invalid object. Getting null value.");
+
+                    var comService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
+                    _ = comService.SendUnhandledExceptionEmailNotification(kafkaPayload);
+                    break;
                 case KafkaServiceName.DailyGreetingJob:
                     _logger.LogInformation($"[Kafka] Message received: Timesheet get");
                     if (kafkaPayload == null)
-                        throw new Exception("[Kafka] Received invalid object. Getting null value.");                    
+                        throw new Exception("[Kafka] Received invalid object. Getting null value.");
 
                     var commonNotificationRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
                     _logger.LogInformation($"[Kafka] Starting sending request.");

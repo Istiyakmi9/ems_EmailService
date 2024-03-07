@@ -1,6 +1,6 @@
 
 using EmailRequest;
-using EmailRequest.Service;
+using EmailRequest.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
