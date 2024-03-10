@@ -120,7 +120,6 @@ namespace EmailRequest.Middleware
                             break;
                     }
 
-                    _logger.LogInformation($"[Kafka] Starting sending request.");
                     emailServiceRequest.SendEmailNotification(attendanceTemplateModel);
                     break;
                 case KafkaServiceName.Billing:
@@ -223,7 +222,7 @@ namespace EmailRequest.Middleware
                     _ = comService.SendUnhandledExceptionEmailNotification(kafkaPayload);
                     break;
                 case KafkaServiceName.DailyGreetingJob:
-                    _logger.LogInformation($"[Kafka] Message received: Timesheet get");
+                    _logger.LogInformation($"[Kafka] Message received: DailyGreetingJob");
                     if (kafkaPayload == null)
                         throw new Exception("[Kafka] Received invalid object. Getting null value.");
 

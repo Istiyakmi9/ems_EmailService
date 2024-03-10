@@ -45,8 +45,6 @@ namespace EmalRequest.Service
 
                 var fromAddress = new System.Net.Mail.MailAddress(_emailSettingDetail!.EmailAddress, emailSenderModal.Title);
 
-                _logger.LogInformation($"[7. Kafka] Reading email setting read successfully.");
-
                 var smtp = new SmtpClient
                 {
                     Host = _emailSettingDetail.EmailHost,
@@ -57,8 +55,6 @@ namespace EmalRequest.Service
                     Credentials = new NetworkCredential(fromAddress.Address, _emailSettingDetail.Credentials)
                 };
 
-                _logger.LogInformation($"[8. Kafka] Configuring image path and body content.");
-                
                 var message = new MailMessage();
                 message.Subject = emailSenderModal.Subject;
                 message.Body = emailSenderModal.Body;
@@ -86,10 +82,9 @@ namespace EmalRequest.Service
                     }
                 }
 
-                _logger.LogInformation($"[9. Kafka] Ready to fire send event.");                
                 smtp.Send(message);
 
-                _logger.LogInformation($"[10. Kafka] Sent successfully.");
+                _logger.LogInformation($"[Kafka] Email sent successfully.");
             }
             catch (Exception ex)
             {

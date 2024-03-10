@@ -65,7 +65,7 @@ namespace EmailRequest.Service
             EmailSenderModal emailSenderModal = new EmailSenderModal();
 
             emailSenderModal.Title = "[EMSTUM]: Your daily digest";
-            emailSenderModal.Subject = $"Daily digest [{kafkaPayload.UtcTimestamp}]";
+            emailSenderModal.Subject = $"Daily digest [{DateTime.Now}]";
             emailSenderModal.To = kafkaPayload.ToAddress != null
                 ?
                     kafkaPayload.ToAddress
