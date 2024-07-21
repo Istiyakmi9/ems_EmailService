@@ -1,7 +1,6 @@
 ﻿using Bot.CoreBottomHalf.CommonModal;
 using BottomhalfCore.DatabaseLayer.Common.Code;
 using CoreBottomHalf.CommonModal.HtmlTemplateModel;
-using EmailRequest.Modal;
 using EmailRequest.Service.Interface;
 using ModalLayer.Modal;
 using System.Globalization;

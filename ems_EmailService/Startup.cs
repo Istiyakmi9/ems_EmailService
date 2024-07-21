@@ -5,6 +5,7 @@ using EmailRequest.EMailService.Interface;
 using EmailRequest.EMailService.Service;
 using EmailRequest.Modal.Common;
 using EmailRequest.Service;
+using EmailRequest.Service.Interface;
 using EmailRequest.Service.TemplateService;
 using EmalRequest.Service;
 using Microsoft.Extensions.FileProviders;
@@ -57,7 +58,7 @@ namespace EmailRequest
             services.AddScoped<BlockAttendanceActionRequested>();
             services.AddScoped<BlockAttendanceAction>();
             services.AddScoped<CommonRequestService>();
-
+            services.AddScoped<IWelcomeNotification, WelcomeNotification>();
             services.AddSingleton<FileLocationDetail>(service =>
             {
                 var fileLocationDetail = Configuration.GetSection("BillingFolders").Get<FileLocationDetail>();
