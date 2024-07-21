@@ -143,7 +143,7 @@ namespace EmailRequest.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("Email/SendWelcomeNotification")]
+        [HttpPost("SendWelcomeNotification")]
         public async Task SendWelcomeNotification([FromBody] WelcomeNotificationModal welcomeNotificationModal)
         {
             await _welcomeNotification.SendWelcomeNotification(welcomeNotificationModal);
