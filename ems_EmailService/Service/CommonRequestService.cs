@@ -1,6 +1,5 @@
 ﻿using Bot.CoreBottomHalf.CommonModal;
 using Bot.CoreBottomHalf.CommonModal.Kafka;
-using CoreBottomHalf.CommonModal.HtmlTemplateModel;
 
 namespace EmailRequest.Service
 {
@@ -12,14 +11,47 @@ namespace EmailRequest.Service
             _emailService = emailService;
         }
 
+        public async Task SendUnhandledExceptionEmailNotification(KafkaPayload kafkaPayload)
+        {
+            EmailSenderModal emailSenderModal = new EmailSenderModal();
+
+
+            emailSenderModal.Title = "[EMSTUM] UnHandled Exception";
+            emailSenderModal.Subject = $"Exception time: {kafkaPayload.UtcTimestamp}";
+            emailSenderModal.To = kafkaPayload.ToAddress != null
+                ?
+                    kafkaPayload.ToAddress
+                :
+                    new List<string> { "marghub12@gmail.com", "istiyaq.mi9@gmail.com" };
+            emailSenderModal.FileLocationDetail = new FileLocationDetail();
+
+            var html = ApplicationResource.CommonException;
+            if (kafkaPayload.exceptionPayloadetail != null)
+            {
+                emailSenderModal.Body = html.Replace("__USERMESSAGE__", kafkaPayload.exceptionPayloadetail.UserMessage)
+                .Replace("__SYSTEMMESSAGE__", kafkaPayload.exceptionPayloadetail.SystemMessage)
+                .Replace("__REQUESTBODY__", kafkaPayload.exceptionPayloadetail.RequestPayload)
+                .Replace("__STACKTRACE__", kafkaPayload.exceptionPayloadetail.StackTrace);
+            }
+            else
+            {
+                emailSenderModal.Body = html.Replace("__USERMESSAGE__", "No error logged. Got some problem while sending messge. Please contact to admin.")
+                .Replace("__SYSTEMMESSAGE__", "NA")
+                .Replace("__REQUESTBODY__", "NA")
+                .Replace("__STACKTRACE__", "NA");
+            }
+
+
+            await Task.Run(() => _emailService.SendEmail(emailSenderModal));
+        }
+
         public async Task SendEmailNotification(KafkaPayload kafkaPayload)
         {
             EmailSenderModal emailSenderModal = new EmailSenderModal();
-            TimeZoneInfo INDIAN_ZONE = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
-            DateTime time = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
-            emailSenderModal.Title = "EMSTUM Application Exception";
-            emailSenderModal.Subject = $"Exception message and reason at {time}";
-            emailSenderModal.To = new List<string> { "marghub12@gmail.com", "istiyaq.mi9@gmail.com" };
+
+            emailSenderModal.Title = "[EMSTUM] Notification";
+            emailSenderModal.Subject = $"Daily digest [{kafkaPayload.UtcTimestamp}]";
+            emailSenderModal.To = kafkaPayload.ToAddress;
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
 
             var html = ApplicationResource.CommonException;
@@ -31,12 +63,17 @@ namespace EmailRequest.Service
         public async Task SendDailyDigestEmailNotification(KafkaPayload kafkaPayload)
         {
             EmailSenderModal emailSenderModal = new EmailSenderModal();
-            emailSenderModal.Title = "EMSTUM: Daily morning update";
-            emailSenderModal.Subject = $"Daily morning update and information about your organization";
-            emailSenderModal.To = new List<string> { "marghub12@gmail.com", "istiyaq.mi9@gmail.com" };
+
+            emailSenderModal.Title = "[EMSTUM]: Your daily digest";
+            emailSenderModal.Subject = $"Daily digest [{DateTime.Now}]";
+            emailSenderModal.To = kafkaPayload.ToAddress != null
+                ?
+                    kafkaPayload.ToAddress
+                :
+                    new List<string> { "marghub12@gmail.com", "istiyaq.mi9@gmail.com", "kumarvivek1502@gmail.com" };
             emailSenderModal.FileLocationDetail = new FileLocationDetail();
 
-            var html = ApplicationResource.CommonException;
+            var html = ApplicationResource.DailyNotification;
             emailSenderModal.Body = html.Replace("__BODY__", kafkaPayload.Message);
 
             await Task.Run(() => _emailService.SendEmail(emailSenderModal));
