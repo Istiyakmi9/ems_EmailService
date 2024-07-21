@@ -1,7 +1,10 @@
 ﻿using Bot.CoreBottomHalf.CommonModal.Kafka;
 using CoreBottomHalf.CommonModal.HtmlTemplateModel;
+using EmailRequest.Modal;
 using EmailRequest.Service;
+using EmailRequest.Service.Interface;
 using EmailRequest.Service.TemplateService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmailRequest.Controllers
@@ -23,6 +26,7 @@ namespace EmailRequest.Controllers
         private readonly TimesheetAction _timesheetApprovalTemplate;
         private readonly TimesheetRequested _timesheetTemplate;
         private readonly CommonRequestService _commonRequestService;
+        private readonly IWelcomeNotification _welcomeNotification;
         public EmailController(BillingService billingTemplate,
             AttendanceRequested attendanceTemplate,
             AutoLeaveMigrationTemplate autoLeaveMigrationTemplate,
@@ -35,7 +39,8 @@ namespace EmailRequest.Controllers
             PayrollService payrollTemplate,
             TimesheetAction timesheetApprovalTemplate,
             TimesheetRequested timesheetTemplate,
-            CommonRequestService commonRequestService)
+            CommonRequestService commonRequestService,
+            IWelcomeNotification welcomeNotification)
         {
             _billingTemplate = billingTemplate;
             _attendanceTemplate = attendanceTemplate;
@@ -50,6 +55,7 @@ namespace EmailRequest.Controllers
             _timesheetApprovalTemplate = timesheetApprovalTemplate;
             _timesheetTemplate = timesheetTemplate;
             _commonRequestService = commonRequestService;
+            _welcomeNotification = welcomeNotification;
         }
 
         [HttpPost("Email/NewRegistration")]
@@ -134,6 +140,13 @@ namespace EmailRequest.Controllers
         public async Task TimesheetEmail(KafkaPayload kafkaPayload)
         {
             await _commonRequestService.SendEmailNotification(kafkaPayload);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("Email/SendWelcomeNotification")]
+        public async Task SendWelcomeNotification([FromBody] WelcomeNotificationModal welcomeNotificationModal)
+        {
+            await _welcomeNotification.SendWelcomeNotification(welcomeNotificationModal);
         }
     }
 }

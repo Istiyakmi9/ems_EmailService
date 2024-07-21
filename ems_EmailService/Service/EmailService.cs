@@ -93,7 +93,7 @@ namespace EmalRequest.Service
             }
             catch (Exception ex)
             {
-                _logger.LogError($"[Kafka] Sending email got exception. Messge: {ex.Message}");
+                _logger.LogError($"[Kafka] Sending email got exception. Message: {ex.Message}");
                 throw;
             }
 
