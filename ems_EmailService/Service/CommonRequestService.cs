@@ -35,7 +35,7 @@ namespace EmailRequest.Service
             }
             else
             {
-                emailSenderModal.Body = html.Replace("__USERMESSAGE__", "No error logged. Got some problem while sending messge. Please contact to admin.")
+                emailSenderModal.Body = html.Replace("__USERMESSAGE__", "No error logged. Got some problem while sending message. Please contact to admin.")
                 .Replace("__SYSTEMMESSAGE__", "NA")
                 .Replace("__REQUESTBODY__", "NA")
                 .Replace("__STACKTRACE__", "NA");
