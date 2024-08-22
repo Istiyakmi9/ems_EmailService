@@ -1,8 +1,6 @@
 ﻿using Bot.CoreBottomHalf.CommonModal.HtmlTemplateModel;
 using Bot.CoreBottomHalf.CommonModal.Kafka;
 using BottomhalfCore.DatabaseLayer.Common.Code;
-using BottomhalfCore.DatabaseLayer.MsSql.Code;
-using BottomhalfCore.DatabaseLayer.MySql.Code;
 using Confluent.Kafka;
 using CoreBottomHalf.CommonModal.HtmlTemplateModel;
 using EmailRequest.Modal;
