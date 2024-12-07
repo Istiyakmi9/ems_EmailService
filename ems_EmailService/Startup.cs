@@ -1,6 +1,10 @@
 ﻿using Bot.CoreBottomHalf.CommonModal;
 using BottomhalfCore.DatabaseLayer.Common.Code;
 using BottomhalfCore.DatabaseLayer.MySql.Code;
+using bt_lib_common_services.Configserver;
+using bt_lib_common_services.KafkaService.code;
+using bt_lib_common_services.KafkaService.interfaces;
+using bt_lib_common_services.Model;
 using EmailRequest.EMailService.Interface;
 using EmailRequest.EMailService.Service;
 using EmailRequest.Modal.Common;
@@ -9,7 +13,6 @@ using EmailRequest.Service.Interface;
 using EmailRequest.Service.TemplateService;
 using EmalRequest.Service;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Options;
 using ModalLayer;
 
 namespace EmailRequest
@@ -59,6 +62,15 @@ namespace EmailRequest
             services.AddScoped<BlockAttendanceAction>();
             services.AddScoped<CommonRequestService>();
             services.AddScoped<IWelcomeNotification, WelcomeNotification>();
+
+            // Subscribe the kafka service
+            services.AddSingleton<IKafkaConsumerService>(x =>
+                new KafkaConsumerService(
+                    KafkaTopicNames.EXCEPTION_MESSAGE_BROKER,
+                    FetchGithubConfigurationService.getInstance(GitRepositories.EMS_CONFIG_SERVICE).Result
+                )
+            );
+
             services.AddSingleton<FileLocationDetail>(service =>
             {
                 var fileLocationDetail = Configuration.GetSection("BillingFolders").Get<FileLocationDetail>();
