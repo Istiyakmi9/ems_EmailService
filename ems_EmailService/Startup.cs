@@ -1,10 +1,10 @@
 ﻿using Bot.CoreBottomHalf.CommonModal;
 using BottomhalfCore.DatabaseLayer.Common.Code;
 using BottomhalfCore.DatabaseLayer.MySql.Code;
-using bt_lib_common_services.Configserver;
-using bt_lib_common_services.KafkaService.code;
-using bt_lib_common_services.KafkaService.interfaces;
-using bt_lib_common_services.Model;
+using Bt.Lib.Common.Service.Configserver;
+using Bt.Lib.Common.Service.KafkaService.code.Consumer;
+using Bt.Lib.Common.Service.KafkaService.interfaces;
+using Bt.Lib.Common.Service.Model;
 using EmailRequest.EMailService.Interface;
 using EmailRequest.EMailService.Service;
 using EmailRequest.Modal.Common;
@@ -66,8 +66,8 @@ namespace EmailRequest
             // Subscribe the kafka service
             services.AddSingleton<IKafkaConsumerService>(x =>
                 new KafkaConsumerService(
-                    KafkaTopicNames.EXCEPTION_MESSAGE_BROKER,
-                    FetchGithubConfigurationService.getInstance(GitRepositories.EMS_CONFIG_SERVICE).Result
+                    ApplicationNames.EMSTUM,
+                    KafkaTopicNames.EXCEPTION_MESSAGE_BROKER
                 )
             );
 
