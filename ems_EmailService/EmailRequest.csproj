@@ -23,6 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\core_libraries\bt_lib_common_services\bt_lib_common_services\Bt.Lib.Common.Service.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="ApplicationResource.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
