@@ -70,7 +70,8 @@ namespace EmailRequest
                     new List<KafkaTopicNames>{
                         KafkaTopicNames.EXCEPTION_MESSAGE_BROKER,
                         KafkaTopicNames.ATTENDANCE_REQUEST_ACTION
-                    }
+                    },
+                    env
                 )
             );
 
