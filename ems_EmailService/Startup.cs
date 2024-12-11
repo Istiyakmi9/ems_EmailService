@@ -69,7 +69,8 @@ namespace EmailRequest
                     ApplicationNames.EMSTUM,
                     new List<KafkaTopicNames>{
                         KafkaTopicNames.EXCEPTION_MESSAGE_BROKER,
-                        KafkaTopicNames.ATTENDANCE_REQUEST_ACTION
+                        KafkaTopicNames.ATTENDANCE_REQUEST_ACTION,
+                        KafkaTopicNames.DAILY_JOBS_MANAGER
                     },
                     env
                 )
