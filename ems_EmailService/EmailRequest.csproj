@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Bot.CoreBottomHalf" Version="1.0.50" />
-    <PackageReference Include="Bt.Lib.Common.Service" Version="1.0.18" />
+    <PackageReference Include="Bt.Lib.Common.Service" Version="1.0.20" />
     <PackageReference Include="Confluent.Kafka" Version="2.6.1" />
     <PackageReference Include="EAGetMail" Version="5.3.1.3" />
     <PackageReference Include="MailKit" Version="4.1.0" />

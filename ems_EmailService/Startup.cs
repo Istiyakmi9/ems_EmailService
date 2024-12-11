@@ -65,7 +65,7 @@ namespace EmailRequest
 
             // Subscribe the kafka service
             services.AddSingleton<IKafkaConsumerService>(x =>
-                new KafkaConsumerService(
+                KafkaConsumerService.GetInstance(
                     ApplicationNames.EMSTUM,
                     new List<KafkaTopicNames>{
                         KafkaTopicNames.EXCEPTION_MESSAGE_BROKER,
