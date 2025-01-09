@@ -1,7 +1,8 @@
 ﻿using Bot.CoreBottomHalf.CommonModal;
 using BottomhalfCore.DatabaseLayer.Common.Code;
+using Bt.Lib.Common.Service.Model;
+using Bt.Lib.Common.Service.Services;
 using EmailRequest.Modal;
-using EmailRequest.Modal.Common;
 using EmailRequest.Service.Interface;
 using Microsoft.Extensions.Options;
 using ModalLayer.Modal;
@@ -11,14 +12,18 @@ namespace EmailRequest.Service.TemplateService
     public class WelcomeNotification : IWelcomeNotification
     {
         private readonly IDb _db;
-        private readonly MasterDatabase _masterDatabase;
         private readonly IEmailService _emailService;
-
-        public WelcomeNotification(IDb db, IOptions<MasterDatabase> masterDatabase, IEmailService emailService)
+        private readonly GitHubConnector _gitHubConnector;
+        private readonly MicroserviceRegistry _microserviceRegistry;
+        public WelcomeNotification(IDb db,
+            IEmailService emailService,
+            MicroserviceRegistry microserviceRegistry,
+            GitHubConnector gitHubConnector)
         {
             _db = db;
-            _masterDatabase = masterDatabase.Value;
             _emailService = emailService;
+            _microserviceRegistry = microserviceRegistry;
+            _gitHubConnector = gitHubConnector;
         }
 
         public async Task SendWelcomeNotification(WelcomeNotificationModal welcomeNotificationModal)
@@ -27,7 +32,8 @@ namespace EmailRequest.Service.TemplateService
             {
                 validateWelcomeNotificationDetail(welcomeNotificationModal);
 
-                _db.SetupConnectionString(MasterDatabase.BuildConnectionString(_masterDatabase));
+                var masterDatabse = await _gitHubConnector.FetchTypedConfiguraitonAsync<DatabaseConfiguration>(_microserviceRegistry.DatabaseConfigurationUrl);
+                _db.SetupConnectionString(DatabaseConfiguration.BuildConnectionString(masterDatabse));
 
                 var html = ApplicationResource.WelcomeNotification;
                 html = html.Replace("__RECIPIENTNAME__", welcomeNotificationModal.RecipientName)
