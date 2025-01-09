@@ -61,7 +61,7 @@ namespace EmailRequest
             services.AddScoped<BlockAttendanceAction>();
             services.AddScoped<CommonRequestService>();
             services.AddScoped<IWelcomeNotification, WelcomeNotification>();
-            services.AddSingleton<KafkaGreetingJobManagerService>();
+            services.AddSingleton<KafkaNotificationManagerService>();
             services.AddSingleton<KafkaDailyJobManagerService>();
             services.AddSingleton<KafkaUnhandleExceptionService>();
 
