@@ -8,28 +8,28 @@ namespace EmailRequest.Middleware
     {
         private ILogger<KafkaService> _logger;
         private readonly IKafkaConsumerService _kafkaConsumerService;
-        private readonly KafkaGreetingJobManagerService _greetingJobManagerService;
-        private readonly KafkaDailyJobManagerService _dailyJobManagerService;
+        private readonly KafkaNotificationManagerService _kafkaNotificationManagerService;
+        private readonly KafkaDailyJobManagerService _kafkaDailyJobManagerService;
         private readonly KafkaUnhandleExceptionService _kafkaUnhandleExceptionService;
         public KafkaService(ILogger<KafkaService> logger,
                              IKafkaConsumerService kafkaConsumerService,
-                             KafkaGreetingJobManagerService greetingJobManagerService,
-                             KafkaDailyJobManagerService dailyJobManagerService,
-                             KafkaUnhandleExceptionService kafkaUnhandleExceptionService)
+                             KafkaUnhandleExceptionService kafkaUnhandleExceptionService,
+                             KafkaNotificationManagerService kafkaNotificationManagerService,
+                             KafkaDailyJobManagerService kafkaDailyJobManagerService)
         {
             _logger = logger;
             _kafkaConsumerService = kafkaConsumerService;
-            _greetingJobManagerService = greetingJobManagerService;
-            _dailyJobManagerService = dailyJobManagerService;
             _kafkaUnhandleExceptionService = kafkaUnhandleExceptionService;
+            _kafkaNotificationManagerService = kafkaNotificationManagerService;
+            _kafkaDailyJobManagerService = kafkaDailyJobManagerService;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("[Kafka] Kafka listener registered successfully.");
 
-            _kafkaConsumerService.SubscribeTopic(_dailyJobManagerService.SendEmailNotification, nameof(KafkaTopicNames.DAILY_JOBS_MANAGER));
-            _kafkaConsumerService.SubscribeTopic(_greetingJobManagerService.SendEmailNotification, nameof(KafkaTopicNames.ATTENDANCE_REQUEST_ACTION));
+            _kafkaConsumerService.SubscribeTopic(_kafkaDailyJobManagerService.SendEmailNotification, nameof(KafkaTopicNames.DAILY_JOBS_MANAGER));
+            _kafkaConsumerService.SubscribeTopic(_kafkaNotificationManagerService.SendEmailNotification, nameof(KafkaTopicNames.ATTENDANCE_REQUEST_ACTION));
             _kafkaConsumerService.SubscribeTopic(_kafkaUnhandleExceptionService.SendEmailNotification, nameof(KafkaTopicNames.EXCEPTION_MESSAGE_BROKER));
 
             await Task.CompletedTask;
