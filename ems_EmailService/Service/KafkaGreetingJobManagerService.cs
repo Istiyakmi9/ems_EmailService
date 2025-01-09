@@ -21,18 +21,12 @@ namespace EmailRequest.Service
 
             using (IServiceScope scope = _serviceProvider.CreateScope())
             {
-                _logger.LogInformation($"[Kafka] Message received: {result.Message.Value}");
-
                 KafkaPayload kafkaPayload = JsonConvert.DeserializeObject<KafkaPayload>(result.Message.Value);
                 if (kafkaPayload == null)
                     throw new Exception("[Kafka] Received invalid object from producer.");
 
                 var masterDatabse = await _gitHubConnector.FetchTypedConfiguraitonAsync<DatabaseConfiguration>(_microserviceRegistry.DatabaseConfigurationUrl);
                 _db.SetupConnectionString(DatabaseConfiguration.BuildConnectionString(masterDatabse));
-
-                _logger.LogInformation($"[Kafka] Message received: DailyGreetingJob");
-                if (kafkaPayload == null)
-                    throw new Exception("[Kafka] Received invalid object. Getting null value.");
 
                 var commonNotificationRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
                 _logger.LogInformation($"[Kafka] Starting sending request.");

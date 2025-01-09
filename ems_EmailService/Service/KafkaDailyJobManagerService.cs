@@ -37,6 +37,11 @@ namespace EmailRequest.Service
                 IEmailServiceRequest emailServiceRequest = null;
                 switch (kafkaPayload.kafkaServiceName)
                 {
+                    case KafkaServiceName.DailyGreetingJob:
+                        var commonNotificationRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
+                        _ = commonNotificationRequestService.SendDailyDigestEmailNotification(kafkaPayload);
+                        _logger.LogInformation($"[Kafka] Message send: ");
+                        break;
                     case KafkaServiceName.Attendance:
                         AttendanceRequestModal attendanceTemplateModel = JsonConvert.DeserializeObject<AttendanceRequestModal>(result.Message.Value);
                         if (attendanceTemplateModel == null)
