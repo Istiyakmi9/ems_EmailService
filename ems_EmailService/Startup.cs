@@ -1,19 +1,17 @@
 ﻿using Bot.CoreBottomHalf.CommonModal;
 using BottomhalfCore.DatabaseLayer.Common.Code;
 using BottomhalfCore.DatabaseLayer.MySql.Code;
-using Bt.Lib.Common.Service.Configserver;
-using Bt.Lib.Common.Service.KafkaService.code.Consumer;
-using Bt.Lib.Common.Service.KafkaService.interfaces;
 using Bt.Lib.Common.Service.Model;
+using Bt.Lib.Common.Service.Services;
 using EmailRequest.EMailService.Interface;
 using EmailRequest.EMailService.Service;
-using EmailRequest.Modal.Common;
+using EmailRequest.Modal;
 using EmailRequest.Service;
 using EmailRequest.Service.Interface;
 using EmailRequest.Service.TemplateService;
 using EmalRequest.Service;
 using Microsoft.Extensions.FileProviders;
-using ModalLayer;
+using Microsoft.Extensions.Options;
 
 namespace EmailRequest
 {
@@ -37,14 +35,16 @@ namespace EmailRequest
         {
             services.AddControllers();
 
-            services.Configure<List<KafkaServiceConfig>>(x => Configuration.GetSection(nameof(KafkaServiceConfig)).Bind(x));
-            services.Configure<MasterDatabase>(x => Configuration.GetSection(nameof(MasterDatabase)).Bind(x));
+            services.Configure<MicroserviceRegistry>(x => Configuration.GetSection(nameof(MicroserviceRegistry)).Bind(x));
+            services.AddSingleton<MicroserviceRegistry>(resolver =>
+                resolver.GetRequiredService<IOptions<MicroserviceRegistry>>().Value
+            );
 
             // add services
             services.AddScoped<IEMailManager, EMailManager>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddSingleton<IDb, Db>();
-
+            services.AddSingleton<GitHubConnector>();
 
             services.AddScoped<BillingService>();
             services.AddScoped<AttendanceRequested>();
@@ -62,19 +62,25 @@ namespace EmailRequest
             services.AddScoped<BlockAttendanceAction>();
             services.AddScoped<CommonRequestService>();
             services.AddScoped<IWelcomeNotification, WelcomeNotification>();
+            services.AddSingleton<KafkaGreetingJobManagerService>();
+            services.AddSingleton<KafkaDailyJobManagerService>();
+            services.AddSingleton<KafkaUnhandleExceptionService>();
 
             // Subscribe the kafka service
-            services.AddSingleton<IKafkaConsumerService>(x =>
-                KafkaConsumerService.GetInstance(
-                    ApplicationNames.EMSTUM,
-                    new List<KafkaTopicNames>{
-                        KafkaTopicNames.EXCEPTION_MESSAGE_BROKER,
-                        KafkaTopicNames.ATTENDANCE_REQUEST_ACTION,
-                        KafkaTopicNames.DAILY_JOBS_MANAGER
-                    },
-                    env
-                )
-            );
+            var commonRegistry = new CommonRegistry(services, env, Configuration);
+            commonRegistry.AddKafkaConsumerService();
+
+            //services.AddSingleton<IKafkaConsumerService>(x =>
+            //    KafkaConsumerService.GetInstance(
+            //        ApplicationNames.EMSTUM,
+            //        new List<KafkaTopicNames>{
+            //            KafkaTopicNames.EXCEPTION_MESSAGE_BROKER,
+            //            KafkaTopicNames.ATTENDANCE_REQUEST_ACTION,
+            //            KafkaTopicNames.DAILY_JOBS_MANAGER
+            //        },
+            //        env
+            //    )
+            //);
 
             services.AddSingleton<FileLocationDetail>(service =>
             {
