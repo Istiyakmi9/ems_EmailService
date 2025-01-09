@@ -1,7 +1,6 @@
 ﻿using Bot.CoreBottomHalf.CommonModal;
 using BottomhalfCore.DatabaseLayer.Common.Code;
 using BottomhalfCore.DatabaseLayer.MySql.Code;
-using Bt.Lib.Common.Service.Model;
 using Bt.Lib.Common.Service.Services;
 using EmailRequest.EMailService.Interface;
 using EmailRequest.EMailService.Service;
@@ -68,7 +67,8 @@ namespace EmailRequest
 
             // Subscribe the kafka service
             var commonRegistry = new CommonRegistry(services, env, Configuration);
-            commonRegistry.AddKafkaConsumerService();
+            commonRegistry.AddPublicKeyConfiguration()
+                .AddKafkaConsumerService();
 
             //services.AddSingleton<IKafkaConsumerService>(x =>
             //    KafkaConsumerService.GetInstance(

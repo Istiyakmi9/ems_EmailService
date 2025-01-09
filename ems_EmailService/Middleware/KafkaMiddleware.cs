@@ -28,9 +28,9 @@ namespace EmailRequest.Middleware
         {
             _logger.LogInformation("[Kafka] Kafka listener registered successfully.");
 
-            await _kafkaConsumerService.SubscribeTopic(_dailyJobManagerService.SendEmailNotification, nameof(KafkaTopicNames.DAILY_JOBS_MANAGER));
-            await _kafkaConsumerService.SubscribeTopic(_greetingJobManagerService.SendEmailNotification, nameof(KafkaTopicNames.ATTENDANCE_REQUEST_ACTION));
-            await _kafkaConsumerService.SubscribeTopic(_kafkaUnhandleExceptionService.SendEmailNotification, nameof(KafkaTopicNames.EXCEPTION_MESSAGE_BROKER));
+            _kafkaConsumerService.SubscribeTopic(_dailyJobManagerService.SendEmailNotification, nameof(KafkaTopicNames.DAILY_JOBS_MANAGER));
+            _kafkaConsumerService.SubscribeTopic(_greetingJobManagerService.SendEmailNotification, nameof(KafkaTopicNames.ATTENDANCE_REQUEST_ACTION));
+            _kafkaConsumerService.SubscribeTopic(_kafkaUnhandleExceptionService.SendEmailNotification, nameof(KafkaTopicNames.EXCEPTION_MESSAGE_BROKER));
 
             await Task.CompletedTask;
         }
