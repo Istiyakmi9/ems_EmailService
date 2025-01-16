@@ -4,7 +4,6 @@ using Bt.Lib.Common.Service.Model;
 using Bt.Lib.Common.Service.Services;
 using EmailRequest.Modal;
 using EmailRequest.Service.Interface;
-using Microsoft.Extensions.Options;
 using ModalLayer.Modal;
 
 namespace EmailRequest.Service.TemplateService
@@ -40,7 +39,7 @@ namespace EmailRequest.Service.TemplateService
                     .Replace("__USERNAME__", welcomeNotificationModal.Email)
                     .Replace("__COMPANYCODE__", welcomeNotificationModal.OrgCode + welcomeNotificationModal.Code)
                     .Replace("__PASSWORD__", welcomeNotificationModal.Password)
-                    .Replace("__COMPANYNAME__ ", welcomeNotificationModal.CompanyName);
+                    .Replace("__COMPANYNAME__", welcomeNotificationModal.CompanyName);
 
                 var title = $"Welcome Aboard! Your Account Details for {welcomeNotificationModal.CompanyName}";
                 EmailSenderModal emailSenderModal = new EmailSenderModal
