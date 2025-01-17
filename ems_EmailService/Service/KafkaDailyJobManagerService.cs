@@ -1,4 +1,5 @@
-﻿using Bot.CoreBottomHalf.CommonModal.Kafka;
+﻿using Bot.CoreBottomHalf.CommonModal.HtmlTemplateModel;
+using Bot.CoreBottomHalf.CommonModal.Kafka;
 using BottomhalfCore.DatabaseLayer.Common.Code;
 using Bt.Lib.Common.Service.Model;
 using Bt.Lib.Common.Service.Services;
@@ -27,12 +28,15 @@ namespace EmailRequest.Service
                 if (kafkaPayload == null)
                     throw new Exception("[Kafka] Received invalid object from producer.");
 
-                var masterDatabse = await _gitHubConnector.FetchTypedConfiguraitonAsync<DatabaseConfiguration>(_microserviceRegistry.DatabaseConfigurationUrl);
-                _db.SetupConnectionString(DatabaseConfiguration.BuildConnectionString(masterDatabse));
+                if (kafkaPayload.kafkaServiceName == KafkaServiceName.DailyGreetingJob)
+                {
+                    var masterDatabse = await _gitHubConnector.FetchTypedConfiguraitonAsync<DatabaseConfiguration>(_microserviceRegistry.DatabaseConfigurationUrl);
+                    _db.SetupConnectionString(DatabaseConfiguration.BuildConnectionString(masterDatabse));
 
-                var commonNotificationRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
-                _ = commonNotificationRequestService.SendDailyDigestEmailNotification(kafkaPayload);
-                _logger.LogInformation($"[Kafka] Message send: ");
+                    var commonNotificationRequestService = scope.ServiceProvider.GetRequiredService<CommonRequestService>();
+                    _ = commonNotificationRequestService.SendDailyDigestEmailNotification(kafkaPayload);
+                    _logger.LogInformation($"[Kafka] Message send: ");
+                }
             }
         }
     }
