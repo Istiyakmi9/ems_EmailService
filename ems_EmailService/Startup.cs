@@ -1,7 +1,7 @@
 ﻿using Bot.CoreBottomHalf.CommonModal;
 using BottomhalfCore.DatabaseLayer.Common.Code;
 using BottomhalfCore.DatabaseLayer.MySql.Code;
-using Bt.Lib.Common.Service.Services;
+using Bt.Lib.PipelineConfig.Services;
 using EmailRequest.EMailService.Interface;
 using EmailRequest.EMailService.Service;
 using EmailRequest.Modal;
@@ -66,7 +66,7 @@ namespace EmailRequest
             services.AddSingleton<KafkaUnhandleExceptionService>();
 
             // Subscribe the kafka service
-            var commonRegistry = new CommonRegistry(services, env, Configuration);
+            var commonRegistry = new PipelineRegistry(services, env, Configuration);
             commonRegistry.AddPublicKeyConfiguration()
                 .AddKafkaConsumerService();
 
