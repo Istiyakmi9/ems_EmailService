@@ -1,7 +1,6 @@
 ﻿using Bot.CoreBottomHalf.CommonModal;
 using BottomhalfCore.DatabaseLayer.Common.Code;
-using Bt.Lib.Common.Service.Model;
-using Bt.Lib.Common.Service.Services;
+using Bt.Lib.PipelineConfig.Services;
 using EmailRequest.Modal;
 using EmailRequest.Service.Interface;
 using ModalLayer.Modal;
@@ -31,8 +30,8 @@ namespace EmailRequest.Service.TemplateService
             {
                 validateWelcomeNotificationDetail(welcomeNotificationModal);
 
-                var masterDatabse = await _gitHubConnector.FetchTypedConfiguraitonAsync<DatabaseConfiguration>(_microserviceRegistry.DatabaseConfigurationUrl);
-                _db.SetupConnectionString(DatabaseConfiguration.BuildConnectionString(masterDatabse));
+                var masterDatabse = await _gitHubConnector.FetchTypedConfiguraitonAsync<string>(_microserviceRegistry.DatabaseConfigurationUrl);
+                _db.SetupConnectionString(masterDatabse);
 
                 var html = ApplicationResource.WelcomeNotification;
                 html = html.Replace("__RECIPIENTNAME__", welcomeNotificationModal.RecipientName)

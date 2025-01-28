@@ -1,7 +1,6 @@
 ﻿using Bot.CoreBottomHalf.CommonModal.Kafka;
 using BottomhalfCore.DatabaseLayer.Common.Code;
-using Bt.Lib.Common.Service.Model;
-using Bt.Lib.Common.Service.Services;
+using Bt.Lib.PipelineConfig.Services;
 using Confluent.Kafka;
 using EmailRequest.Modal;
 using Newtonsoft.Json;
@@ -27,8 +26,8 @@ namespace EmailRequest.Service
                 if (kafkaPayload == null)
                     throw new Exception("[Kafka] Received invalid object from producer.");
 
-                var masterDatabse = await _gitHubConnector.FetchTypedConfiguraitonAsync<DatabaseConfiguration>(_microserviceRegistry.DatabaseConfigurationUrl);
-                _db.SetupConnectionString(DatabaseConfiguration.BuildConnectionString(masterDatabse));
+                var masterDatabse = await _gitHubConnector.FetchTypedConfiguraitonAsync<string>(_microserviceRegistry.DatabaseConfigurationUrl);
+                _db.SetupConnectionString(masterDatabse);
 
                 _logger.LogInformation($"[Kafka] Got unhandled exception");
 
